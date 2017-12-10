@@ -7,8 +7,8 @@ public class Simulacion {
     private DistribucionProbabilidad tablaTiempoEntrega;
     private DistribucionProbabilidad tablaTiempoEspera;
 
-    private int Costo_faltante = 0;
-    private int Costo_de_Orden = 0;
+    private float Costo_faltante = 0;
+    private float Costo_de_Orden = 0;
     private float Costo_de_inventario = 0;
     private float Costo_total = 0;
 
@@ -64,7 +64,6 @@ public class Simulacion {
         aleatoriosDemanda.add(37);
         aleatoriosDemanda.add(25);
         aleatoriosDemanda.add(14);
-
 
         aleatoriosEntrega.add(22);
         aleatoriosEntrega.add(43);
@@ -177,7 +176,6 @@ public class Simulacion {
 
             /*suma el costo faltante*/
             if(faltante > 0){
-                System.out.println("PRUEBAAA");
                 if(tiempoEspera > 0)
                     Costo_faltante += faltante * costoFaltanteConEspera;
                 else
