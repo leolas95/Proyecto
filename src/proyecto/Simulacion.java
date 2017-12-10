@@ -7,6 +7,11 @@ public class Simulacion {
     private DistribucionProbabilidad tablaTiempoEntrega;
     private DistribucionProbabilidad tablaTiempoEspera;
 
+    private int Costo_faltante = 0;
+    private int Costo_de_Orden = 0;
+    private float Costo_de_inventario = 0;
+    private float Costo_total = 0;
+
     // Para usarlos como prueba con los datos del ejemplo
     ArrayList<Integer> aleatoriosDemanda = new ArrayList<>();
     ArrayList<Integer> aleatoriosEntrega = new ArrayList<>();
@@ -80,6 +85,7 @@ public class Simulacion {
         int inventarioInicial = 50;
         int q = 100;
         int puntoDeReorden = 75;
+        int sum_invPromdiario = 0;
 
         // Para que el primer dia, el inventario inicial sea igual
         // al del dia "anterior", que en teoria no existe
@@ -168,6 +174,27 @@ public class Simulacion {
             System.out.println("Tiempo espera: " + tiempoEspera);
             System.out.println("Pendiente: " + pendiente);
             System.out.println();
+
+            /*suma el costo faltante*/
+            if(faltante > 0){
+                System.out.println("PRUEBAAA");
+                if(tiempoEspera > 0)
+                    Costo_faltante += faltante * costoFaltanteConEspera;
+                else
+                    Costo_faltante += faltante * costoFaltanteSinEspera;
+            }
+
+            sum_invPromdiario += inventarioPromedio;
+
         }
+
+        Costo_de_Orden = nroOrden*costoOrdenar;
+        Costo_de_inventario = sum_invPromdiario*costoInventario/365;
+        Costo_total = Costo_faltante + Costo_de_Orden + Costo_de_inventario;
+        System.out.println("Los resultados de la simulacion son:");
+        System.out.println("Costo faltante = "+Costo_faltante);
+        System.out.println("Costo de Orden = "+Costo_de_Orden);
+        System.out.println("Costo de inventario = "+Costo_de_inventario);
+        System.out.println("Costo_total = "+Costo_total);
     }
 }
