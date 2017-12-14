@@ -64,18 +64,19 @@ public class Simulacion {
         aleatoriosDemanda.add(37);
         aleatoriosDemanda.add(25);
         aleatoriosDemanda.add(14);
-
         aleatoriosEntrega.add(22);
         aleatoriosEntrega.add(43);
         aleatoriosEntrega.add(10);
         aleatoriosEntrega.add(29);
         aleatoriosEntrega.add(76);
-
         aleatoriosEspera.add(64);
         aleatoriosEspera.add(6);
     }
 
-    void ejecutar(int dias) {
+    void ejecutar(int dias, Controller controller) {
+        // Inicializamos la tabla en la interfaz
+        controller.inicializarTablaPersonas();
+
         int diaActual;
         int costoInventario = 52;
         int costoOrdenar = 100;
@@ -149,7 +150,7 @@ public class Simulacion {
             }
 
             nroAleatorioTiempoEspera = -1;
-            tiempoEspera = 0;
+            tiempoEspera = -1;
             if (inventarioFinal == 0) {
                 if (indiceEspera < aleatoriosEspera.size())
                     nroAleatorioTiempoEspera = aleatoriosEspera.get(indiceEspera++);
@@ -174,6 +175,24 @@ public class Simulacion {
             System.out.println("Pendiente: " + pendiente);
             System.out.println();
 
+
+            //ESTO SE COLOCA EN LA INTERFAZ
+            Inventario inventario = new Inventario();
+            inventario.setDia(diaActual);
+            inventario.setInvInicio(inventarioInicial);
+            inventario.setAleatorioDemanda((float) nroAleatorioDemanda/100);
+            inventario.setDemanda(demanda);
+            inventario.setInvFinal(inventarioFinal);
+            inventario.setInvProm((int) inventarioPromedio);
+            inventario.setFaltante(faltante);
+            inventario.setNoOrden(nroOrden);
+            inventario.setAleatorioEntrega((float) nroAleatorioTiempoEntrega/100);
+            inventario.setTiempoEntrega(tiempoEntrega);
+            inventario.setAleatorioEspera((float) nroAleatorioTiempoEspera/100);
+            inventario.setTiempoEspera(tiempoEspera);
+            controller.inventarios.add(inventario);
+
+
             /*suma el costo faltante*/
             if(faltante > 0){
                 if(tiempoEspera > 0)
@@ -194,5 +213,9 @@ public class Simulacion {
         System.out.println("Costo de Orden = "+Costo_de_Orden);
         System.out.println("Costo de inventario = "+Costo_de_inventario);
         System.out.println("Costo_total = "+Costo_total);
+        controller.costoFaltanteText.setText("Costo faltante = "+Costo_faltante);
+        controller.costoOrdenText.setText("Costo de Orden = "+Costo_de_Orden);
+        controller.costoInventarioText.setText("Costo de inventario = "+Costo_de_inventario);
+        controller.costoTotalText.setText("Costo_total = "+Costo_total);
     }
 }
