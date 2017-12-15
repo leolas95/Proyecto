@@ -1,6 +1,7 @@
 package proyecto;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Representa las tablas de demanda, tiempos de entrega y tiempos de espera
@@ -35,6 +36,14 @@ public class DistribucionProbabilidad {
         float acumulado = 0;
         for (Float probabilidad : probabilidades) acumulado += probabilidad;
         return acumulado;
+    }
+
+    public int obtenerValorMinimo() {
+        return Collections.min(valores);
+    }
+
+    public int obtenerValorMaximo() {
+        return Collections.max(valores);
     }
 
     /**

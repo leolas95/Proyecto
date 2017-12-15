@@ -5,31 +5,31 @@ import javafx.beans.property.SimpleIntegerProperty;
 
 public class Inventario {
 
-    public SimpleIntegerProperty dia;
-    public SimpleIntegerProperty invInicio;
-    public SimpleFloatProperty aleatorioDemanda;
-    public SimpleIntegerProperty Demanda;
-    public SimpleIntegerProperty invFinal;
-    public SimpleIntegerProperty invProm;
-    public SimpleIntegerProperty Faltante;
-    public SimpleIntegerProperty noOrden;
-    public SimpleFloatProperty aleatorioEntrega;
-    public SimpleIntegerProperty tiempoEntrega;
-    public SimpleFloatProperty aleatorioEspera;
-    public SimpleIntegerProperty tiempoEspera;
+    private SimpleIntegerProperty dia;
+    private SimpleIntegerProperty invInicio;
+    private SimpleIntegerProperty aleatorioDemanda;
+    private SimpleIntegerProperty Demanda;
+    private SimpleIntegerProperty invFinal;
+    private SimpleFloatProperty invProm;
+    private SimpleIntegerProperty faltante;
+    private SimpleIntegerProperty noOrden;
+    private SimpleIntegerProperty aleatorioEntrega;
+    private SimpleIntegerProperty tiempoEntrega;
+    private SimpleIntegerProperty aleatorioEspera;
+    private SimpleIntegerProperty tiempoEspera;
 
     public Inventario(){
         dia = new SimpleIntegerProperty();
         invInicio = new SimpleIntegerProperty();
-        aleatorioDemanda = new SimpleFloatProperty();
+        aleatorioDemanda = new SimpleIntegerProperty();
         Demanda = new SimpleIntegerProperty();
         invFinal = new SimpleIntegerProperty();
-        invProm = new SimpleIntegerProperty();
-        Faltante = new SimpleIntegerProperty();
+        invProm = new SimpleFloatProperty();
+        faltante = new SimpleIntegerProperty();
         noOrden = new SimpleIntegerProperty();
-        aleatorioEntrega = new SimpleFloatProperty();
+        aleatorioEntrega = new SimpleIntegerProperty();
         tiempoEntrega = new SimpleIntegerProperty();
-        aleatorioEspera = new SimpleFloatProperty();
+        aleatorioEspera = new SimpleIntegerProperty();
         tiempoEspera = new SimpleIntegerProperty();
     }
 
@@ -52,11 +52,11 @@ public class Inventario {
     }
 
 
-    public SimpleFloatProperty aleatorioDemandaProperty() {
+    public SimpleIntegerProperty aleatorioDemandaProperty() {
         return aleatorioDemanda;
     }
 
-    public void setAleatorioDemanda(float aleatorioDemanda) {
+    public void setAleatorioDemanda(int aleatorioDemanda) {
         this.aleatorioDemanda.set(aleatorioDemanda);
     }
 
@@ -77,21 +77,22 @@ public class Inventario {
     }
 
 
-    public SimpleIntegerProperty invPromProperty() {
+    public SimpleFloatProperty invPromProperty() {
         return invProm;
     }
 
-    public void setInvProm(int invProm) {
+    public void setInvProm(float invProm) {
         this.invProm.set(invProm);
     }
 
 
     public SimpleIntegerProperty faltanteProperty() {
-        return Faltante;
+        return faltante;
     }
 
-    public void setFaltante(int Faltante) {
-        this.Faltante.set(Faltante);
+    public void setFaltante(int faltante) {
+        this.faltante.set(faltante);
+        System.out.println("set faltante = " + this.faltante.get());
     }
 
     public SimpleIntegerProperty noOrdenProperty() {
@@ -103,11 +104,11 @@ public class Inventario {
     }
 
 
-    public SimpleFloatProperty aleatorioEntregaProperty() {
+    public SimpleIntegerProperty aleatorioEntregaProperty() {
         return aleatorioEntrega;
     }
 
-    public void setAleatorioEntrega(float aleatorioEntrega) {
+    public void setAleatorioEntrega(int aleatorioEntrega) {
         this.aleatorioEntrega.set(aleatorioEntrega);
     }
 
@@ -121,11 +122,11 @@ public class Inventario {
     }
 
 
-    public SimpleFloatProperty aleatorioEsperaProperty() {
+    public SimpleIntegerProperty aleatorioEsperaProperty() {
         return aleatorioEspera;
     }
 
-    public void setAleatorioEspera(float aleatorioEspera) {
+    public void setAleatorioEspera(int aleatorioEspera) {
         this.aleatorioEspera.set(aleatorioEspera);
     }
 
@@ -136,6 +137,4 @@ public class Inventario {
     public void setTiempoEspera(int tiempoEspera) {
         this.tiempoEspera.set(tiempoEspera);
     }
-
-
 }

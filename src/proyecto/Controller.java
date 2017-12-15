@@ -1,7 +1,6 @@
 package proyecto;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -14,12 +13,11 @@ import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
-    //Declaramos los text utilizables
+    // Declaramos los text utilizables
     @FXML public Text limitesQText;
     @FXML public Text limitesRText;
     @FXML public Text costoFaltanteText;
@@ -27,9 +25,9 @@ public class Controller implements Initializable {
     @FXML public Text costoInventarioText;
     @FXML public Text costoTotalText;
 
-    //Declaramos los spinners utilizables
-    @FXML private Spinner<Integer> valorQSpinner = new Spinner<Integer>();
-    @FXML private Spinner<Integer> valorRSpinner = new Spinner<Integer>();
+    // Declaramos los spinners utilizables
+    @FXML private Spinner<Integer> valorQSpinner = new Spinner<>();
+    @FXML private Spinner<Integer> valorRSpinner = new Spinner<>();
 
     // Declaramos la tabla y las columnas
     @FXML private TableView<Inventario> inventarioTV;
@@ -49,8 +47,6 @@ public class Controller implements Initializable {
     public ObservableList<Inventario> inventarios;
     private int posicionInventarioEnTabla;
 
-    float eps = 0.000001F;
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -69,8 +65,8 @@ public class Controller implements Initializable {
         valorRSpinner.setValueFactory(valoresR);
 
         //se escriben en los text de la vista los rangos de Q y R
-        limitesQText.setText(MINQ+" <= Q <= "+MAXQ);
-        limitesRText.setText(MINR+" <= R <= "+MAXR);
+        limitesQText.setText(MINQ + " <= Q <= " + MAXQ);
+        limitesRText.setText(MINR + " <= R <= " + MAXR);
 
         ArrayList<Integer> valoresDemanda = new ArrayList<>();
         valoresDemanda.add(25);
@@ -128,33 +124,30 @@ public class Controller implements Initializable {
 
         DistribucionProbabilidad tablaEsperas = new DistribucionProbabilidad(valoresEspera, probabilidadesEspera);
 
-        Simulacion simulacion = new Simulacion();
-        simulacion.setTablaDemanda(tablaDemanda);
-        simulacion.setTablaTiempoEntrega(tablaEntregas);
-        simulacion.setTablaTiempoEspera(tablaEsperas);
-        simulacion.ejecutar(15, this);
-
+        Simulacion simulacion = new Simulacion(tablaDemanda, tablaEntregas, tablaEsperas, 15,
+                52, 100, 20, 50, 50,
+                this);
+        simulacion.ejecutar();
     }
 
     /**
      * Método para inicializar la tabla
      */
-    public void inicializarTablaPersonas() {
+    void inicializarTablaPersonas() {
         diaTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("dia"));
         invInicioTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("invInicio"));
-        aleatorioDemandaTC.setCellValueFactory(new PropertyValueFactory<Inventario, Float>("aleatorioDemanda"));
+        aleatorioDemandaTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("aleatorioDemanda"));
         DemandaTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("Demanda"));
         invFinalTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("invFinal"));
         invPromTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("invProm"));
-        FaltanteTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("Faltante"));
+        FaltanteTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("faltante"));
         noOrdenTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("noOrden"));
-        aleatorioEntregaTC.setCellValueFactory(new PropertyValueFactory<Inventario, Float>("aleatorioEntrega"));
+        aleatorioEntregaTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("aleatorioEntrega"));
         tiempoEntregaTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("tiempoEntrega"));
-        aleatorioEsperaTC.setCellValueFactory(new PropertyValueFactory<Inventario, Float>("aleatorioEspera"));
+        aleatorioEsperaTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("aleatorioEspera"));
         tiempoEsperaTC.setCellValueFactory(new PropertyValueFactory<Inventario, Integer>("tiempoEspera"));
 
         inventarios = FXCollections.observableArrayList();
         inventarioTV.setItems(inventarios);
     }
-
 }
