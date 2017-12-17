@@ -9,83 +9,55 @@ public class Simulacion {
 
     private int diasSimulacion;
 
-    private int costoInventario = 52;
-    private int costoOrdenar = 100;
-    private int costoFaltanteConEspera = 20;
-    private int costoFaltanteSinEspera = 50;
-    private int inventarioInicial = 50;
+    // Los costos asociados a la simulacion. Son los que se leen como parametros al usuario
+    private int costoInventarioSimulacion;
+    private int costoOrdenarSimulacion;
+    private int costoFaltanteConEsperaSimulacion;
+    private int costoFaltanteSinEsperaSimulacion;
 
-    // Para usarlos como prueba con los datos del ejemplo
-    ArrayList<Integer> aleatoriosDemanda = new ArrayList<>();
-    ArrayList<Integer> aleatoriosEntrega = new ArrayList<>();
-    ArrayList<Integer> aleatoriosEspera = new ArrayList<>();
+    private int inventarioInicial;
 
-    Controller controller;
+    // Los costos minimos, para mostrar como resultado final
+    private float costoFaltanteMinimo;
+    private float costoDeOrdenMinimo;
+    private float costoDeInventarioMinimo;
+    private float costoTotalMinimo = Float.MAX_VALUE;
 
-    public Simulacion() {
-        init();
-    }
+    // Los valores de "q" y "r" asociados al costo total minimo de toda la simulacion
+    private float qmin, rmin;
 
-    public Simulacion(DistribucionProbabilidad tablaDemanda, DistribucionProbabilidad tablaTiempoEntrega,
-                      DistribucionProbabilidad tablaTiempoEspera, int diasSimulacion, int costoInventario,
-                      int costoOrdenar, int costoFaltanteConEspera, int costoFaltanteSinEspera, int inventarioInicial,
-                      Controller controller) {
+    // Numeros aleatorios para usarlos como prueba con los datos del ejemplo. Borrar al final
+    private ArrayList<Integer> aleatoriosDemanda = new ArrayList<>();
+    private ArrayList<Integer> aleatoriosEntrega = new ArrayList<>();
+    private ArrayList<Integer> aleatoriosEspera = new ArrayList<>();
+
+    private Controller controller;
+
+    Simulacion(DistribucionProbabilidad tablaDemanda, DistribucionProbabilidad tablaTiempoEntrega,
+               DistribucionProbabilidad tablaTiempoEspera, int diasSimulacion, int costoInventarioSimulacion,
+               int costoOrdenarSimulacion, int costoFaltanteConEsperaSimulacion, int costoFaltanteSinEsperaSimulacion, int inventarioInicial,
+               Controller controller) {
         this.tablaDemanda = tablaDemanda;
         this.tablaTiempoEntrega = tablaTiempoEntrega;
         this.tablaTiempoEspera = tablaTiempoEspera;
         this.diasSimulacion = diasSimulacion;
-        this.costoInventario = costoInventario;
-        this.costoOrdenar = costoOrdenar;
-        this.costoFaltanteConEspera = costoFaltanteConEspera;
-        this.costoFaltanteSinEspera = costoFaltanteSinEspera;
+        this.costoInventarioSimulacion = costoInventarioSimulacion;
+        this.costoOrdenarSimulacion = costoOrdenarSimulacion;
+        this.costoFaltanteConEsperaSimulacion = costoFaltanteConEsperaSimulacion;
+        this.costoFaltanteSinEsperaSimulacion = costoFaltanteSinEsperaSimulacion;
         this.inventarioInicial = inventarioInicial;
         this.controller = controller;
 
         init();
 
         System.out.println("diasSimulacion = " + diasSimulacion);
-        System.out.println("costo inventario = " + costoInventario);
-        System.out.println("costo ordenar " + costoOrdenar);
-        System.out.println("costo faltante con espera " + costoFaltanteConEspera);
-        System.out.println("costo faltante sin espera " + costoFaltanteSinEspera);
+        System.out.println("costo inventario = " + costoInventarioSimulacion);
+        System.out.println("costo ordenar " + costoOrdenarSimulacion);
+        System.out.println("costo faltante con espera " + costoFaltanteConEsperaSimulacion);
+        System.out.println("costo faltante sin espera " + costoFaltanteSinEsperaSimulacion);
         System.out.println("inventario inicial " + inventarioInicial);
     }
 
-    public void setTablaDemanda(DistribucionProbabilidad tablaDemanda) {
-        this.tablaDemanda = tablaDemanda;
-    }
-
-    public void setTablaTiempoEntrega(DistribucionProbabilidad tablaTiempoEntrega) {
-        this.tablaTiempoEntrega = tablaTiempoEntrega;
-    }
-
-    public void setTablaTiempoEspera(DistribucionProbabilidad tablaTiempoEspera) {
-        this.tablaTiempoEspera = tablaTiempoEspera;
-    }
-
-    public void setCostoInventario(int costoInventario) {
-        this.costoInventario = costoInventario;
-    }
-
-    public void setCostoOrdenar(int costoOrdenar) {
-        this.costoOrdenar = costoOrdenar;
-    }
-
-    public void setCostoFaltanteConEspera(int costoFaltanteConEspera) {
-        this.costoFaltanteConEspera = costoFaltanteConEspera;
-    }
-
-    public void setCostoFaltanteSinEspera(int costoFaltanteSinEspera) {
-        this.costoFaltanteSinEspera = costoFaltanteSinEspera;
-    }
-
-    public void setInventarioInicial(int inventarioInicial) {
-        this.inventarioInicial = inventarioInicial;
-    }
-
-    public void setDiasSimulacion(int diasSimulacion) {
-        this.diasSimulacion = diasSimulacion;
-    }
 
     /**
      * Esto es solo para usar los numeros aleatorios del ejemplo y verificar que de el mismo resultado.
@@ -116,45 +88,47 @@ public class Simulacion {
     }
 
     /**
-     * Calcula Q* (la cantidad optima por pedido, segun los costos y demanda dada)
-     *             ______________
-     *           /   2KD(h+s)
-     * Q* = \  / ---------------
-     *      \/         hs
+     * Calcula q* (la cantidad optima por pedido, segun los costos y demanda dada)
+     * ______________
+     * /   2KD(h+s)
+     * q* = \  / ---------------
+     * \/         hs
+     *
      * @param k costo por pedido
      * @param d demanda
      * @param h costo de inventario
      * @param s costo de escasez (faltante)
-     * @return Q*
+     * @return q*
      */
-    int calcularQ(int k, int d, int h, int s) {
-        return (int) Math.sqrt((2*k*d*(h+s)) / (h*s));
+    int calcularQAsterisco(int k, int d, int h, int s) {
+        return (int) Math.sqrt((2 * k * d * (h + s)) / (h * s));
     }
 
-    void ejecutar() {
+    void ejecutar(int q, int r) {
         // Inicializamos la tabla en la interfaz
-        controller.inicializarTablaPersonas();
+        controller.inicializarTablaSimulacion();
 
-        int dmin = tablaDemanda.obtenerValorMinimo();
-        int dmax = tablaDemanda.obtenerValorMaximo();
+        // Esto se debe pasar como parametro al metodo
+        /*int q = 100;
+        int puntoDeReorden = 75;*/
 
-        // Calcular qmin y qmax...
+        int puntoDeReorden = r;
 
-        int q = 100;
-        int puntoDeReorden = 75;
-
-        // Los costos resultantes mostrados al final de la simulacion. Esto es lo que en verdad le importa a la profe.
-        float costoFaltante = 0;
-        float costoDeOrden = 0;
-        float costoDeInventario = 0;
-        float costoTotal = 0;
+        // Los costos resultantes asociados a una corrida de la simulacion.
+        float resultadoCostoFaltante = 0;
+        float resultadoCostoDeOrdenar;
+        float resultadoCostoDeInventario;
+        float resultadoCostoTotal;
 
         int diaActual;
         float sumaInventarioPromedioDiario = 0;
 
+        // Para no perder el valor original del inventario inicial
+        int inventarioInicialCorrida = inventarioInicial;
+
         // Para que el primer dia, el inventario inicial sea igual
         // al del dia "anterior", que en teoria no existe
-        int inventarioFinal = inventarioInicial;
+        int inventarioFinal = inventarioInicialCorrida;
 
         boolean hayOrdenesPendiente = false;
         int nroOrden = 0;
@@ -164,7 +138,7 @@ public class Simulacion {
         int demanda;
 
         int nroAleatorioTiempoEntrega;
-        int tiempoEntrega = -1;
+        int tiempoEntrega = -1; // -1 significa que no hay tiempo de entrega
         int indiceEntrega = 0;
 
         int nroAleatorioTiempoEspera;
@@ -178,33 +152,59 @@ public class Simulacion {
         float inventarioPromedio;
 
         for (diaActual = 1; diaActual <= diasSimulacion; diaActual++) {
-            inventarioInicial = inventarioFinal;
+            inventarioInicialCorrida = inventarioFinal;
 
-            if (tiempoEntrega >= 0) {
+
+            // Si tenemos ordenes pendientes aun sin entregar, ajusta el tiempo que falta
+            if (hayOrdenesPendiente && tiempoEntrega >= 0) {
                 tiempoEntrega--;
 
                 // Si llega el pedido, actualiza el inventario inicial, e indica que ya no hay ordenes pendiente
                 if (tiempoEntrega < 0) {
-                    inventarioInicial += q - pendiente;
+                    /*inventarioInicial += q - pendiente;
                     hayOrdenesPendiente = false;
                     if (inventarioInicial >= 0)
+                        pendiente = 0;*/
+
+                    inventarioInicialCorrida += q - pendiente;
+                    if (inventarioInicialCorrida < 0) {
+                        inventarioInicialCorrida = 0;
+                        pendiente = Math.abs(q - pendiente);
+                    } else {
                         pendiente = 0;
+                    }
+                    hayOrdenesPendiente = false;
                 }
             }
 
             // Esto luego se reemplaza por numeros aleatorios "de verdad"
-            nroAleatorioDemanda = aleatoriosDemanda.get(diaActual-1);
+            nroAleatorioDemanda = aleatoriosDemanda.get(diaActual - 1);
             demanda = tablaDemanda.obtenerValor(nroAleatorioDemanda);
-            inventarioFinal = inventarioInicial - demanda;
+            inventarioFinal = inventarioInicialCorrida - demanda;
 
             faltante = 0;
+            nroAleatorioTiempoEspera = -1;
+            tiempoEspera = -1;
+            // Si el inventario final es < 0, significa que no satisfacimos la demanda y hubo faltante
             if (inventarioFinal < 0) {
                 inventarioFinal = 0;
-                faltante = Math.abs(inventarioInicial - demanda);
+                faltante = Math.abs(inventarioInicialCorrida - demanda);
+
+                // Cuando eliminemos aleatoriosEspera, el if es innecesario, solo nos quedamos con el cuerpo
+                // Obten el tiempo de espera
+                if (indiceEspera < aleatoriosEspera.size())
+                    nroAleatorioTiempoEspera = aleatoriosEspera.get(indiceEspera++);
+                tiempoEspera = tablaTiempoEspera.obtenerValor(nroAleatorioTiempoEspera);
+
+                // Si el cliente espera, guardamos lo que tenemos pendiente
+                if (tiempoEspera > 0) {
+                    pendiente += faltante;
+                }
             }
-            inventarioPromedio = (inventarioInicial + inventarioFinal) / 2.0F;
+            inventarioPromedio = (inventarioInicialCorrida + inventarioFinal) / 2.0F;
 
             nroAleatorioTiempoEntrega = -1;
+            // Pregunta si hay que hacer un pedido
             if (inventarioFinal < puntoDeReorden && !hayOrdenesPendiente) {
                 nroOrden++;
                 nroAleatorioTiempoEntrega = aleatoriosEntrega.get(indiceEntrega++);
@@ -212,19 +212,8 @@ public class Simulacion {
                 hayOrdenesPendiente = true;
             }
 
-            nroAleatorioTiempoEspera = -1;
-            tiempoEspera = -1;
-            if (inventarioFinal == 0) {
-                if (indiceEspera < aleatoriosEspera.size())
-                    nroAleatorioTiempoEspera = aleatoriosEspera.get(indiceEspera++);
-                tiempoEspera = tablaTiempoEspera.obtenerValor(nroAleatorioTiempoEspera);
-                if (tiempoEspera > 0) {
-                    pendiente += faltante;
-                }
-            }
-
-            /*System.out.println("Dia: " + diaActual);
-            System.out.println("Inventario inicial: " + inventarioInicial);
+            System.out.println("Dia: " + diaActual);
+            System.out.println("Inventario inicial: " + inventarioInicialCorrida);
             System.out.println("Nro aleatorio demanda: " + nroAleatorioDemanda);
             System.out.println("Demanda: " + demanda);
             System.out.println("Inventario final: " + inventarioFinal);
@@ -236,47 +225,76 @@ public class Simulacion {
             System.out.println("Nro aleatorio espera: " + nroAleatorioTiempoEspera);
             System.out.println("Tiempo espera: " + tiempoEspera);
             System.out.println("Pendiente: " + pendiente);
-            System.out.println();*/
+            System.out.println();
 
 
-            // Aqui es donde se muestran los calculos en la interfaz
-            Inventario inventario = new Inventario();
-            inventario.setDia(diaActual);
-            inventario.setInvInicio(inventarioInicial);
-            inventario.setAleatorioDemanda(nroAleatorioDemanda);
-            inventario.setDemanda(demanda);
-            inventario.setInvFinal(inventarioFinal);
-            inventario.setInvProm(inventarioPromedio);
-            inventario.setFaltante(faltante);
-            inventario.setNoOrden(nroOrden);
-            inventario.setAleatorioEntrega(nroAleatorioTiempoEntrega);
-            inventario.setTiempoEntrega(tiempoEntrega);
-            inventario.setAleatorioEspera(nroAleatorioTiempoEspera);
-            inventario.setTiempoEspera(tiempoEspera);
-            controller.inventarios.add(inventario);
-
+            insertarNuevaFila(
+                    diaActual, inventarioInicialCorrida, nroAleatorioDemanda, demanda,
+                    inventarioFinal, inventarioPromedio, faltante, nroOrden, hayOrdenesPendiente, nroAleatorioTiempoEntrega,
+                    tiempoEntrega, nroAleatorioTiempoEspera, tiempoEspera
+            );
 
             // Suma el costo faltante
             if (faltante > 0) {
                 if (tiempoEspera > 0)
-                    costoFaltante += faltante * costoFaltanteConEspera;
+                    resultadoCostoFaltante += faltante * costoFaltanteConEsperaSimulacion;
                 else
-                    costoFaltante += faltante * costoFaltanteSinEspera;
+                    resultadoCostoFaltante += faltante * costoFaltanteSinEsperaSimulacion;
             }
             sumaInventarioPromedioDiario += inventarioPromedio;
         }
 
-        costoDeOrden = nroOrden*costoOrdenar;
-        costoDeInventario = sumaInventarioPromedioDiario*(costoInventario/365.0F);
-        costoTotal = costoFaltante + costoDeOrden + costoDeInventario;
+        resultadoCostoDeOrdenar = nroOrden * costoOrdenarSimulacion;
+        resultadoCostoDeInventario = sumaInventarioPromedioDiario * (costoInventarioSimulacion / 365.0F);
+        resultadoCostoTotal = resultadoCostoFaltante + resultadoCostoDeOrdenar + resultadoCostoDeInventario;
         System.out.println("Los resultados de la simulacion son:");
-        System.out.println("Costo faltante = "+ costoFaltante);
-        System.out.println("Costo de Orden = "+ costoDeOrden);
-        System.out.println("Costo de inventario = "+ costoDeInventario);
-        System.out.println("costoTotal = "+ costoTotal);
-        controller.costoFaltanteText.setText("Costo faltante = "+ costoFaltante);
-        controller.costoOrdenText.setText("Costo de Orden = "+ costoDeOrden);
-        controller.costoInventarioText.setText("Costo de inventario = "+ costoDeInventario);
-        controller.costoTotalText.setText("Costo Total = "+ costoTotal);
+        System.out.println("Costo faltante = " + resultadoCostoFaltante);
+        System.out.println("Costo de Orden = " + resultadoCostoDeOrdenar);
+        System.out.println("Costo de inventario = " + resultadoCostoDeInventario);
+        System.out.println("resultadoCostoTotal = " + resultadoCostoTotal);
+        System.out.println();
+
+        mostrarCostos(resultadoCostoFaltante, resultadoCostoDeOrdenar, resultadoCostoDeInventario, resultadoCostoTotal);
+
+        // Si estos valores de q y r dan un costo minimo mejor, los guardamos
+        if (resultadoCostoTotal < costoTotalMinimo) {
+            costoFaltanteMinimo = resultadoCostoFaltante;
+            costoDeOrdenMinimo = resultadoCostoDeOrdenar;
+            costoDeInventarioMinimo = resultadoCostoDeInventario;
+            costoTotalMinimo = resultadoCostoTotal;
+            qmin = q;
+            rmin = r;
+        }
+
+    }
+
+    // Muestra los costos finales de la corrida de simulacion en la pantalla
+    private void mostrarCostos(float resultadoCostoFaltante, float resultadoCostoDeOrdenar,
+                               float resultadoCostoDeInventario, float resultadoCostoTotal) {
+        controller.costoFaltanteText.setText("Costo faltante = " + resultadoCostoFaltante);
+        controller.costoOrdenText.setText("Costo de Orden = " + resultadoCostoDeOrdenar);
+        controller.costoInventarioText.setText("Costo de inventario = " + resultadoCostoDeInventario);
+        controller.costoTotalText.setText("Costo Total = " + resultadoCostoTotal);
+    }
+
+    // Crea una nueva fila con los argumentos, y la inserta en la tabla de eventos
+    private void insertarNuevaFila(int diaActual, int inventarioInicialCorrida, int nroAleatorioDemanda, int demanda,
+                                   int inventarioFinal, float inventarioPromedio, int faltante, int nroOrden,
+                                   boolean hayOrdenesPendiente, int nroAleatorioTiempoEntrega, int tiempoEntrega,
+                                   int nroAleatorioTiempoEspera, int tiempoEspera) {
+
+        // Aqui es donde se muestran los calculos en la interfaz
+        Inventario inventario = new Inventario(diaActual, inventarioInicialCorrida, nroAleatorioDemanda, demanda,
+                inventarioFinal, inventarioPromedio, faltante, nroOrden, hayOrdenesPendiente, nroAleatorioTiempoEntrega,
+                tiempoEntrega, nroAleatorioTiempoEspera, tiempoEspera);
+        controller.insertarFila(inventario);
+    }
+
+    float getQmin() {
+        return qmin;
+    }
+
+    float getRmin() {
+        return rmin;
     }
 }
