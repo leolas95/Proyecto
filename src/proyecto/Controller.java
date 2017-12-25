@@ -11,6 +11,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -44,122 +47,21 @@ public class Controller implements Initializable {
     @FXML private TableColumn aleatorioEsperaTC;
     @FXML private TableColumn tiempoEsperaTC;
 
-    ObservableList<Inventario> inventarios;
+    private ObservableList<Inventario> inventarios;
 
-    // Solo para probar que la simulacion de los mismos resultados que el ejemplo. Al final esto y el metodo
-    // crearTablasDePrueba lo eliminamos
-    private ArrayList<Integer> valoresDemanda;
-    private ArrayList<Float> probabilidadesDemanda;
     private DistribucionProbabilidad tablaDemanda;
-    private ArrayList<Integer> valoresEntrega;
-    private ArrayList<Float> probabilidadesEntrega;
     private DistribucionProbabilidad tablaEntregas;
-    private ArrayList<Integer> valoresEspera;
-    private ArrayList<Float> probabilidadesEspera;
     private DistribucionProbabilidad tablaEsperas;
 
-    private void crearTablasDePrueba() {
-        valoresDemanda = new ArrayList<>();
-        valoresDemanda.add(25);
-        valoresDemanda.add(26);
-        valoresDemanda.add(27);
-        valoresDemanda.add(28);
-        valoresDemanda.add(29);
-        valoresDemanda.add(30);
-        valoresDemanda.add(31);
-        valoresDemanda.add(35);
-        valoresDemanda.add(33);
-        valoresDemanda.add(34);
+    // Modificar segun cada quien
+    private final static String RUTA_ARCHIVO_DEFECTO = "C:\\Users\\Leonardo\\Documents\\Parametros.txt";
 
-        probabilidadesDemanda = new ArrayList<>();
-        probabilidadesDemanda.add(0.02F);
-        probabilidadesDemanda.add(0.04F);
-        probabilidadesDemanda.add(0.06F);
-        probabilidadesDemanda.add(0.12F);
-        probabilidadesDemanda.add(0.20F);
-        probabilidadesDemanda.add(0.24F);
-        probabilidadesDemanda.add(0.15F);
-        probabilidadesDemanda.add(0.10F);
-        probabilidadesDemanda.add(0.05F);
-        probabilidadesDemanda.add(0.02F);
-
-        // Se crea la tabla de demanda
-        tablaDemanda = new DistribucionProbabilidad(valoresDemanda, probabilidadesDemanda);
-
-        valoresEntrega = new ArrayList<>();
-        valoresEntrega.add(1);
-        valoresEntrega.add(2);
-        valoresEntrega.add(3);
-        valoresEntrega.add(4);
-
-        probabilidadesEntrega = new ArrayList<>();
-        probabilidadesEntrega.add(0.2F);
-        probabilidadesEntrega.add(0.3F);
-        probabilidadesEntrega.add(0.25F);
-        probabilidadesEntrega.add(0.25F);
-
-        tablaEntregas = new DistribucionProbabilidad(valoresEntrega, probabilidadesEntrega);
-
-        valoresEspera = new ArrayList<>();
-        valoresEspera.add(0);
-        valoresEspera.add(1);
-        valoresEspera.add(2);
-        valoresEspera.add(3);
-        valoresEspera.add(4);
-
-        probabilidadesEspera = new ArrayList<>();
-        probabilidadesEspera.add(0.4F);
-        probabilidadesEspera.add(0.2F);
-        probabilidadesEspera.add(0.15F);
-        probabilidadesEspera.add(0.15F);
-        probabilidadesEspera.add(0.1F);
-
-        tablaEsperas = new DistribucionProbabilidad(valoresEspera, probabilidadesEspera);
-    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        // 1. Mariam obtiene los datos
-        // 2. Con esos datos calculamos qmin, qmax, rmin y rmax
-        // 3. Creamos la simulacion con esos datos
-        // 4. Por cada valor entre qmin y qmax:
-        //   4.1 Por cada valor entre rmin y rmax:
-        //     4.1.2 ejecutamos la simulacion con el valor actual de q y r
-        // 5. Mostramos los resultados
-
-        /**
-         * Mariam,
-         * aqui es donde debes leer los datos del archivo. Para el momento en que se llegue a la parte de
-         * calcular qmin, qmax, rmin y rmax, las tablas deben estar creadas.
-         *
-         * Por cada tabla que hay en el archivo vas a hacer primero:
-         *      ArrayList<Integer> valoresTablaxxx = new ArrayList<>()
-         *      ArrayList<Float> probabilidadesTablaxxx = new ArrayList<>()
-         * Reemplaxa 'xxx' por demanda, tiempoEntrega y tiempoEspera
-         *
-         * Luego vas a leer linea por linea (sin while ni for, manualmente)  el archivo. En el formato que dijimos la
-         * primera linea son los valores de la tabla, y la segunda las probabilidades:
-         *
-         *      File archivo = ...
-         *      BufferedReader bufferedReader = ...
-         *
-         *      String lineaValores = bufferedReader.readLine();
-         *      String lineaProbabilidades = bufferedReader.readLine();
-         *
-         * Luego extraes solamente lo que interesa:
-         *
-         *      String[] valores = lineaValores.split("\\|")
-         *      String[] probabilidades = lineaProbabilidades.split("\\|")
-         *
-         * Luego los recorres y vas guardando el valor en los ArrayList de antes. Haces lo mismo para las demas
-         * tablas del archivo. Luego fijate en crearTablasDePrueba() para ver como crear las tablas
-         * en si.
-         *
-         * Recuerda tambien leer los costos.
-         */
-
-        crearTablasDePrueba();
+//        crearTablasDePrueba();
+        leerParametrosDeArchivo(RUTA_ARCHIVO_DEFECTO);
 
         // Aqui debemos calcular los valores de qmin, qmax, rmin y rmax
         int qmin = 5;
@@ -188,17 +90,14 @@ public class Controller implements Initializable {
             simulacion.ejecutar(q, newValue);
         });
 
-        simulacion.ejecutar(100, 75);
-
-        /*for (int qactual = qmin; qactual <= 100; qactual++) {
-            for (int ractual = rmin; ractual <= 100; ractual++) {
+        for (int qactual = qmin; qactual <= 110; qactual++) {
+            for (int ractual = rmin; ractual <= 110; ractual++) {
                 simulacion.ejecutar(qactual, ractual);
             }
-        }*/
+        }
 
         System.out.println("qmin = " + simulacion.getQmin());
-        System.out.println("rmin = " + simulacion.getRmin());
-
+        System.out.println("rmax = " + simulacion.getRmin());
     }
 
     private void inicializarSpinners(int qmin, int qmax, int rmin, int rmax) {
@@ -237,11 +136,158 @@ public class Controller implements Initializable {
     }
 
     /**
+     * Lee los parametros de la simulacion del archivo especificado
+     *
+     * @param rutaArchivo nombre del archivo de donde leer los datos
+     */
+    private void leerParametrosDeArchivo(String rutaArchivo) {
+        try {
+            FileReader f = new FileReader(rutaArchivo);
+            BufferedReader br = new BufferedReader(f);
+
+            String lineaDemanda = br.readLine();
+            String lineaProbDemanda = br.readLine();
+
+            String lineaTiempoEntrega = br.readLine();
+            String lineaProbTiempoEntrega = br.readLine();
+
+            String lineaTiempoEspera = br.readLine();
+            String lineaProbTiempoEspera = br.readLine();
+
+            String lineaCostoInventario = br.readLine();
+            String lineaCostoOrden = br.readLine();
+            String lineaCostoFaltante_espera = br.readLine();
+            String lineaCostoFaltante_sinEspera = br.readLine();
+            String lineaInventarioInicial = br.readLine();
+            String lineaQ = br.readLine();
+            String lineaR = br.readLine();
+
+            String[] demanda = lineaDemanda.split("\\|");
+            String[] probDemanda = lineaProbDemanda.split("\\|");
+
+            String[] tiempoEntrega = lineaTiempoEntrega.split("\\|");
+            String[] probTiempoEntrega = lineaProbTiempoEntrega.split("\\|");
+
+            String[] tiempoEspera = lineaTiempoEspera.split("\\|");
+            String[] probTiempoEspera = lineaProbTiempoEspera.split("\\|");
+
+            tablaDemanda = crearTabla(demanda, probDemanda);
+            tablaEntregas = crearTabla(tiempoEntrega, probTiempoEntrega);
+            tablaEsperas = crearTabla(tiempoEspera, probTiempoEspera);
+
+        } catch (IOException ex) {
+            System.out.println("Error leyendo archivo de parametros");
+        }
+    }
+
+    /**
+     * Crea y retorna una Tabla con los valores y probabilidades dados. Se encarga de parsear los valores y
+     * probabilidades, crear las listas y devolver la tabla creada.
+     *
+     * @param valores        los valores para la tabla
+     * @param probabilidades las probabilidades para la tabla
+     * @return la tabla creada con los valores y probabilidades
+     */
+    private DistribucionProbabilidad crearTabla(String[] valores, String[] probabilidades) {
+        ArrayList<Integer> valoresTabla = new ArrayList<>();
+        ArrayList<Float> probabilidadesTabla = new ArrayList<>();
+
+        for (String valor : valores) {
+            valoresTabla.add(Integer.parseInt(valor));
+        }
+
+        for (String probabilidad : probabilidades) {
+            probabilidadesTabla.add(Float.parseFloat(probabilidad));
+        }
+
+        // TODO: verificar que la suma de las probabilidades sea igual a 1, y retornar error si no es asi
+        return new DistribucionProbabilidad(valoresTabla, probabilidadesTabla);
+    }
+
+
+    /**
      * Inserta una nueva fila en la tabla de eventos
      *
      * @param inventario la fila a insertar
      */
     void insertarFila(Inventario inventario) {
         inventarios.add(inventario);
+    }
+
+    /**
+     * Muestra los datos de una tabla por pantalla. Se usa para probar que los datos esten bien
+     *
+     * @param tabla la tabla que se va a mostrar
+     */
+    void mostrarTabla(DistribucionProbabilidad tabla) {
+        for (int i = 0; i < tabla.valores.size(); i++)
+            System.out.printf("%d| ", tabla.valores.get(i));
+        System.out.println();
+        for (int i = 0; i < tabla.probabilidades.size(); i++)
+            System.out.printf("%.2f| ", tabla.probabilidades.get(i));
+        System.out.println("\n");
+    }
+
+
+    /**
+     * Crea las mismas tablas del ejemplo dado en la asignacion del proyecto
+     */
+    private void crearTablasDePrueba() {
+        ArrayList<Integer> valoresDemanda = new ArrayList<>();
+        valoresDemanda.add(25);
+        valoresDemanda.add(26);
+        valoresDemanda.add(27);
+        valoresDemanda.add(28);
+        valoresDemanda.add(29);
+        valoresDemanda.add(30);
+        valoresDemanda.add(31);
+        valoresDemanda.add(35);
+        valoresDemanda.add(33);
+        valoresDemanda.add(34);
+
+        ArrayList<Float> probabilidadesDemanda = new ArrayList<>();
+        probabilidadesDemanda.add(0.02F);
+        probabilidadesDemanda.add(0.04F);
+        probabilidadesDemanda.add(0.06F);
+        probabilidadesDemanda.add(0.12F);
+        probabilidadesDemanda.add(0.20F);
+        probabilidadesDemanda.add(0.24F);
+        probabilidadesDemanda.add(0.15F);
+        probabilidadesDemanda.add(0.10F);
+        probabilidadesDemanda.add(0.05F);
+        probabilidadesDemanda.add(0.02F);
+
+        // Se crea la tabla de demanda
+        tablaDemanda = new DistribucionProbabilidad(valoresDemanda, probabilidadesDemanda);
+
+        ArrayList<Integer> valoresEntrega = new ArrayList<>();
+        valoresEntrega.add(1);
+        valoresEntrega.add(2);
+        valoresEntrega.add(3);
+        valoresEntrega.add(4);
+
+        ArrayList<Float> probabilidadesEntrega = new ArrayList<>();
+        probabilidadesEntrega.add(0.2F);
+        probabilidadesEntrega.add(0.3F);
+        probabilidadesEntrega.add(0.25F);
+        probabilidadesEntrega.add(0.25F);
+
+        tablaEntregas = new DistribucionProbabilidad(valoresEntrega, probabilidadesEntrega);
+
+        ArrayList<Integer> valoresEspera = new ArrayList<>();
+        valoresEspera.add(0);
+        valoresEspera.add(1);
+        valoresEspera.add(2);
+        valoresEspera.add(3);
+        valoresEspera.add(4);
+
+        ArrayList<Float> probabilidadesEspera = new ArrayList<>();
+        probabilidadesEspera.add(0.4F);
+        probabilidadesEspera.add(0.2F);
+        probabilidadesEspera.add(0.15F);
+        probabilidadesEspera.add(0.15F);
+        probabilidadesEspera.add(0.1F);
+
+        tablaEsperas = new DistribucionProbabilidad(valoresEspera, probabilidadesEspera);
     }
 }

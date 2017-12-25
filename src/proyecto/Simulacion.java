@@ -150,10 +150,8 @@ public class Simulacion {
         int pendiente = 0;
 
         float inventarioPromedio;
-
         for (diaActual = 1; diaActual <= diasSimulacion; diaActual++) {
             inventarioInicialCorrida = inventarioFinal;
-
 
             // Si tenemos ordenes pendientes aun sin entregar, ajusta el tiempo que falta
             if (hayOrdenesPendiente && tiempoEntrega >= 0) {
@@ -212,7 +210,8 @@ public class Simulacion {
                 hayOrdenesPendiente = true;
             }
 
-            System.out.println("Dia: " + diaActual);
+
+            /*System.out.println("Dia: " + diaActual);
             System.out.println("Inventario inicial: " + inventarioInicialCorrida);
             System.out.println("Nro aleatorio demanda: " + nroAleatorioDemanda);
             System.out.println("Demanda: " + demanda);
@@ -225,8 +224,7 @@ public class Simulacion {
             System.out.println("Nro aleatorio espera: " + nroAleatorioTiempoEspera);
             System.out.println("Tiempo espera: " + tiempoEspera);
             System.out.println("Pendiente: " + pendiente);
-            System.out.println();
-
+            System.out.println();*/
 
             insertarNuevaFila(
                     diaActual, inventarioInicialCorrida, nroAleatorioDemanda, demanda,
@@ -236,10 +234,11 @@ public class Simulacion {
 
             // Suma el costo faltante
             if (faltante > 0) {
-                if (tiempoEspera > 0)
+                if (tiempoEspera > 0) {
                     resultadoCostoFaltante += faltante * costoFaltanteConEsperaSimulacion;
-                else
+                } else {
                     resultadoCostoFaltante += faltante * costoFaltanteSinEsperaSimulacion;
+                }
             }
             sumaInventarioPromedioDiario += inventarioPromedio;
         }
@@ -247,12 +246,12 @@ public class Simulacion {
         resultadoCostoDeOrdenar = nroOrden * costoOrdenarSimulacion;
         resultadoCostoDeInventario = sumaInventarioPromedioDiario * (costoInventarioSimulacion / 365.0F);
         resultadoCostoTotal = resultadoCostoFaltante + resultadoCostoDeOrdenar + resultadoCostoDeInventario;
-        System.out.println("Los resultados de la simulacion son:");
+        /*System.out.println("Los resultados de la simulacion son:");
         System.out.println("Costo faltante = " + resultadoCostoFaltante);
         System.out.println("Costo de Orden = " + resultadoCostoDeOrdenar);
         System.out.println("Costo de inventario = " + resultadoCostoDeInventario);
         System.out.println("resultadoCostoTotal = " + resultadoCostoTotal);
-        System.out.println();
+        System.out.println();*/
 
         mostrarCostos(resultadoCostoFaltante, resultadoCostoDeOrdenar, resultadoCostoDeInventario, resultadoCostoTotal);
 
