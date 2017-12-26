@@ -53,8 +53,11 @@ public class Controller implements Initializable {
     private DistribucionProbabilidad tablaEntregas;
     private DistribucionProbabilidad tablaEsperas;
 
+    private int costoDeOrden, costoDeInventario, escasezConEspera, escasezSinEspera, inventarioInicial, diasSimulacion;
+
     // Modificar segun cada quien
     private final static String RUTA_ARCHIVO_DEFECTO = "C:\\Users\\Leonardo\\Documents\\Parametros.txt";
+    private Simulacion simulacion;
 
 
     @Override
@@ -63,20 +66,33 @@ public class Controller implements Initializable {
 //        crearTablasDePrueba();
         leerParametrosDeArchivo(RUTA_ARCHIVO_DEFECTO);
 
-        // Aqui debemos calcular los valores de qmin, qmax, rmin y rmax
-        int qmin = 5;
-        int qmax = 1000;
-        int rmin = 5;
-        int rmax = 1000;
+        int qmin = calcularQAsterisco(costoDeOrden, tablaDemanda.obtenerValorMinimo(), costoDeInventario, escasezSinEspera);
+        int qmax = calcularQAsterisco(costoDeOrden, tablaDemanda.obtenerValorMaximo(), costoDeInventario, escasezConEspera);
+
+        int rmin = calcularPuntoDeReorden(tablaDemanda.obtenerValorMinimo(), diasSimulacion, qmin, tablaEntregas.obtenerValorMinimo());
+        int rmax = calcularPuntoDeReorden(tablaDemanda.obtenerValorMaximo(), diasSimulacion, qmax, tablaEntregas.obtenerValorMaximo());
 
         inicializarSpinners(qmin, qmax, rmin, rmax);
 
         // Se crea la simulacion con los datos que no variaran: las tablas y estos costos con constantes
-        Simulacion simulacion = new Simulacion(tablaDemanda, tablaEntregas, tablaEsperas, 15,
-                52, 100, 20,
-                50, 50,
+        simulacion = new Simulacion(tablaDemanda, tablaEntregas, tablaEsperas, diasSimulacion,
+                costoDeInventario, costoDeOrden, escasezConEspera,
+                escasezSinEspera, inventarioInicial,
                 this);
 
+        inicializarListeners();
+
+        for (int qactual = qmin; qactual <= qmax; qactual++) {
+            for (int ractual = rmin; ractual <= rmax; ractual++) {
+                simulacion.ejecutar(qactual, ractual);
+            }
+        }
+
+        System.out.println("qmin = " + simulacion.getQmin());
+        System.out.println("rmax = " + simulacion.getRmin());
+    }
+
+    private void inicializarListeners() {
         // Listener para rehacer la simulacion con el nuevo valor de q
         valorQSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
             // Ejecutamos la simulacion con el nuevo valor de q, pero EL MISMO VALOR de r
@@ -89,15 +105,36 @@ public class Controller implements Initializable {
             int q = valorQSpinner.getValue();
             simulacion.ejecutar(q, newValue);
         });
+    }
 
-        for (int qactual = qmin; qactual <= 110; qactual++) {
-            for (int ractual = rmin; ractual <= 110; ractual++) {
-                simulacion.ejecutar(qactual, ractual);
-            }
+    /**
+     * Calcula el punto de reorden
+     *
+     * @param D              la demanda
+     * @param diasSimulacion los dias que va a durar la simulacion
+     * @param q              la cantidad de articulos solicitados por pedido
+     * @param tiempoEntrega  el tiempo de entrega del pedido
+     * @return el punto de reorden calculado
+     */
+    private int calcularPuntoDeReorden(int D, int diasSimulacion, int q, int tiempoEntrega) {
+        float L = tiempoEntrega / (float) diasSimulacion; // Transforma el tiempo de entrega de dias a anos
+        float t0 = (float) q / (float) D;
+
+        if (L < t0) {
+            // PR = LD
+            return (int) (L * D);
+        } else {
+            //      _ _
+            //     | L |
+            // n = |---|
+            //     | D |
+            // Le = L - nt0;
+            // PR = Le * D;
+
+            int n = (int) (L / D);
+            float Le = L - n * t0;
+            return (int) (Le * D);
         }
-
-        System.out.println("qmin = " + simulacion.getQmin());
-        System.out.println("rmax = " + simulacion.getRmin());
     }
 
     private void inicializarSpinners(int qmin, int qmax, int rmin, int rmax) {
@@ -155,12 +192,22 @@ public class Controller implements Initializable {
             String lineaProbTiempoEspera = br.readLine();
 
             String lineaCostoInventario = br.readLine();
+            costoDeInventario = Integer.parseInt(lineaCostoInventario);
+
             String lineaCostoOrden = br.readLine();
+            costoDeOrden = Integer.parseInt(lineaCostoOrden);
+
             String lineaCostoFaltante_espera = br.readLine();
+            escasezConEspera = Integer.parseInt(lineaCostoFaltante_espera);
+
             String lineaCostoFaltante_sinEspera = br.readLine();
+            escasezSinEspera = Integer.parseInt(lineaCostoFaltante_sinEspera);
+
             String lineaInventarioInicial = br.readLine();
-            String lineaQ = br.readLine();
-            String lineaR = br.readLine();
+            inventarioInicial = Integer.parseInt(lineaInventarioInicial);
+
+            String lineaDiasSimulacion = br.readLine();
+            diasSimulacion = Integer.parseInt(lineaDiasSimulacion);
 
             String[] demanda = lineaDemanda.split("\\|");
             String[] probDemanda = lineaProbDemanda.split("\\|");
@@ -179,6 +226,24 @@ public class Controller implements Initializable {
             System.out.println("Error leyendo archivo de parametros");
         }
     }
+
+    /**
+     * Calcula q* (la cantidad optima por pedido, segun los costos y demanda dada)
+     * ______________
+     * /   2KD(h+s)
+     * q* = \  / ---------------
+     * \/         hs
+     *
+     * @param k costo por pedido
+     * @param d demanda
+     * @param h costo de inventario
+     * @param s costo de escasez (faltante)
+     * @return q*
+     */
+    int calcularQAsterisco(int k, int d, int h, int s) {
+        return (int) Math.sqrt((2 * k * d * (h + s)) / (h * s));
+    }
+
 
     /**
      * Crea y retorna una Tabla con los valores y probabilidades dados. Se encarga de parsear los valores y

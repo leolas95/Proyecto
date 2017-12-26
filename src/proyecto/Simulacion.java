@@ -87,23 +87,6 @@ public class Simulacion {
         aleatoriosEspera.add(6);
     }
 
-    /**
-     * Calcula q* (la cantidad optima por pedido, segun los costos y demanda dada)
-     * ______________
-     * /   2KD(h+s)
-     * q* = \  / ---------------
-     * \/         hs
-     *
-     * @param k costo por pedido
-     * @param d demanda
-     * @param h costo de inventario
-     * @param s costo de escasez (faltante)
-     * @return q*
-     */
-    int calcularQAsterisco(int k, int d, int h, int s) {
-        return (int) Math.sqrt((2 * k * d * (h + s)) / (h * s));
-    }
-
     void ejecutar(int q, int r) {
         // Inicializamos la tabla en la interfaz
         controller.inicializarTablaSimulacion();
