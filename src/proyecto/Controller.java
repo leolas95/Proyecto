@@ -55,8 +55,9 @@ public class Controller implements Initializable {
 
     private int costoDeOrden, costoDeInventario, escasezConEspera, escasezSinEspera, inventarioInicial, diasSimulacion;
 
-    // Modificar segun cada quien
+    // Modificar la ruta segun cada quien
     private final static String RUTA_ARCHIVO_DEFECTO = "C:\\Users\\Leonardo\\Documents\\Parametros.txt";
+
     private Simulacion simulacion;
 
 
@@ -229,10 +230,10 @@ public class Controller implements Initializable {
 
     /**
      * Calcula q* (la cantidad optima por pedido, segun los costos y demanda dada)
-     * ______________
-     * /   2KD(h+s)
+     *             ______________
+     *           /   2KD(h+s)
      * q* = \  / ---------------
-     * \/         hs
+     *      \/         hs
      *
      * @param k costo por pedido
      * @param d demanda
@@ -240,11 +241,10 @@ public class Controller implements Initializable {
      * @param s costo de escasez (faltante)
      * @return q*
      */
-    int calcularQAsterisco(int k, int d, int h, int s) {
+    private int calcularQAsterisco(int k, int d, int h, int s) {
         return (int) Math.sqrt((2 * k * d * (h + s)) / (h * s));
     }
-
-
+    
     /**
      * Crea y retorna una Tabla con los valores y probabilidades dados. Se encarga de parsear los valores y
      * probabilidades, crear las listas y devolver la tabla creada.

@@ -1,8 +1,12 @@
 package proyecto;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Simulacion {
+
+    private final int DIAS_EN_UN_ANO = 365;
+
     private DistribucionProbabilidad tablaDemanda;
     private DistribucionProbabilidad tablaTiempoEntrega;
     private DistribucionProbabilidad tablaTiempoEspera;
@@ -10,10 +14,10 @@ public class Simulacion {
     private int diasSimulacion;
 
     // Los costos asociados a la simulacion. Son los que se leen como parametros al usuario
-    private int costoInventarioSimulacion;
-    private int costoOrdenarSimulacion;
-    private int costoFaltanteConEsperaSimulacion;
-    private int costoFaltanteSinEsperaSimulacion;
+    private float costoInventarioSimulacion;
+    private float costoOrdenarSimulacion;
+    private float costoFaltanteConEsperaSimulacion;
+    private float costoFaltanteSinEsperaSimulacion;
 
     private int inventarioInicial;
 
@@ -91,11 +95,7 @@ public class Simulacion {
         // Inicializamos la tabla en la interfaz
         controller.inicializarTablaSimulacion();
 
-        // Esto se debe pasar como parametro al metodo
-        /*int q = 100;
-        int puntoDeReorden = 75;*/
-
-        int puntoDeReorden = r;
+        ArrayList<FaltanteEnEspera> registroFaltantes = new ArrayList<>();
 
         // Los costos resultantes asociados a una corrida de la simulacion.
         float resultadoCostoFaltante = 0;
@@ -128,11 +128,8 @@ public class Simulacion {
         int tiempoEspera;
         int indiceEspera = 0;
 
-
-        // El inventario pendiente acumulado (lo que se acumula cuando el cliente espera)
-        int pendiente = 0;
-
         float inventarioPromedio;
+
         for (diaActual = 1; diaActual <= diasSimulacion; diaActual++) {
             inventarioInicialCorrida = inventarioFinal;
 
@@ -142,30 +139,61 @@ public class Simulacion {
 
                 // Si llega el pedido, actualiza el inventario inicial, e indica que ya no hay ordenes pendiente
                 if (tiempoEntrega < 0) {
-                    /*inventarioInicial += q - pendiente;
+                    inventarioInicialCorrida += q;
                     hayOrdenesPendiente = false;
-                    if (inventarioInicial >= 0)
-                        pendiente = 0;*/
+                }
+            }
 
-                    inventarioInicialCorrida += q - pendiente;
-                    if (inventarioInicialCorrida < 0) {
+            Iterator iterator = registroFaltantes.iterator();
+
+            // Recorre la lista de inventarios pendientes, actualizando cada uno
+            while (iterator.hasNext()) {
+                FaltanteEnEspera faltanteEnEspera = (FaltanteEnEspera) iterator.next();
+                int inventarioFaltante = faltanteEnEspera.getFaltante();
+                int diasDeEspera = faltanteEnEspera.getDiasDeEspera();
+
+                // Si tenemos algo de inventario para pagar
+                if (inventarioInicialCorrida > 0) {
+
+                    // Si no podemos pagar tod0 el faltante, solo una parte
+                    if (inventarioInicialCorrida <= inventarioFaltante) {
+                        faltanteEnEspera.setFaltante(inventarioFaltante - inventarioInicialCorrida);
                         inventarioInicialCorrida = 0;
-                        pendiente = Math.abs(q - pendiente);
-                    } else {
-                        pendiente = 0;
                     }
-                    hayOrdenesPendiente = false;
+                    // Podemos pagar tod0 el faltante de una vez
+                    else {
+                        inventarioInicialCorrida -= inventarioFaltante;
+                        faltanteEnEspera.setFaltante(0);
+                    }
+                }
+
+                // Pagamos tod0 antes de que se acabe el tiempo de espera
+                if (inventarioFaltante == 0 && diasDeEspera >= 0) {
+                    resultadoCostoFaltante += faltanteEnEspera.calcularCosto(costoFaltanteConEsperaSimulacion, costoFaltanteSinEsperaSimulacion);
+                    iterator.remove();
+                    continue;
+                }
+
+                if (diasDeEspera > 0) {
+                    faltanteEnEspera.decrementarDiasDeEspera();
+                }
+                // Se acabo el tiempo de espera y no pagamos tod0
+                else {
+                    resultadoCostoFaltante +=faltanteEnEspera.calcularCosto(costoFaltanteConEsperaSimulacion, costoFaltanteSinEsperaSimulacion);
+                    iterator.remove();
                 }
             }
 
             // Esto luego se reemplaza por numeros aleatorios "de verdad"
             nroAleatorioDemanda = aleatoriosDemanda.get(diaActual - 1);
+
             demanda = tablaDemanda.obtenerValor(nroAleatorioDemanda);
             inventarioFinal = inventarioInicialCorrida - demanda;
 
             faltante = 0;
             nroAleatorioTiempoEspera = -1;
             tiempoEspera = -1;
+
             // Si el inventario final es < 0, significa que no satisfacimos la demanda y hubo faltante
             if (inventarioFinal < 0) {
                 inventarioFinal = 0;
@@ -179,62 +207,38 @@ public class Simulacion {
 
                 // Si el cliente espera, guardamos lo que tenemos pendiente
                 if (tiempoEspera > 0) {
-                    pendiente += faltante;
+                    registroFaltantes.add(new FaltanteEnEspera(faltante, tiempoEspera));
                 }
             }
             inventarioPromedio = (inventarioInicialCorrida + inventarioFinal) / 2.0F;
 
             nroAleatorioTiempoEntrega = -1;
+
             // Pregunta si hay que hacer un pedido
-            if (inventarioFinal < puntoDeReorden && !hayOrdenesPendiente) {
+            if (inventarioFinal < r && !hayOrdenesPendiente) {
                 nroOrden++;
                 nroAleatorioTiempoEntrega = aleatoriosEntrega.get(indiceEntrega++);
                 tiempoEntrega = tablaTiempoEntrega.obtenerValor(nroAleatorioTiempoEntrega);
                 hayOrdenesPendiente = true;
             }
 
-
-            /*System.out.println("Dia: " + diaActual);
-            System.out.println("Inventario inicial: " + inventarioInicialCorrida);
-            System.out.println("Nro aleatorio demanda: " + nroAleatorioDemanda);
-            System.out.println("Demanda: " + demanda);
-            System.out.println("Inventario final: " + inventarioFinal);
-            System.out.println("Inventario promedio: " + inventarioPromedio);
-            System.out.println("Faltante: " + faltante);
-            System.out.println("Nro orden: " + nroOrden);
-            System.out.println("Nro aleatorio entrega: " + nroAleatorioTiempoEntrega);
-            System.out.println("Tiempo entrega: " + tiempoEntrega);
-            System.out.println("Nro aleatorio espera: " + nroAleatorioTiempoEspera);
-            System.out.println("Tiempo espera: " + tiempoEspera);
-            System.out.println("Pendiente: " + pendiente);
-            System.out.println();*/
-
+            // Inserta una nueva fila en la tabla de eventos
             insertarNuevaFila(
                     diaActual, inventarioInicialCorrida, nroAleatorioDemanda, demanda,
                     inventarioFinal, inventarioPromedio, faltante, nroOrden, hayOrdenesPendiente, nroAleatorioTiempoEntrega,
                     tiempoEntrega, nroAleatorioTiempoEspera, tiempoEspera
             );
 
-            // Suma el costo faltante
-            if (faltante > 0) {
-                if (tiempoEspera > 0) {
-                    resultadoCostoFaltante += faltante * costoFaltanteConEsperaSimulacion;
-                } else {
-                    resultadoCostoFaltante += faltante * costoFaltanteSinEsperaSimulacion;
-                }
+            // Si hubo faltante y el cliente no espera, es perdida de ventas
+            if (faltante > 0 && tiempoEspera == 0) {
+                resultadoCostoFaltante += faltante * costoFaltanteSinEsperaSimulacion;
             }
             sumaInventarioPromedioDiario += inventarioPromedio;
         }
 
         resultadoCostoDeOrdenar = nroOrden * costoOrdenarSimulacion;
-        resultadoCostoDeInventario = sumaInventarioPromedioDiario * (costoInventarioSimulacion / 365.0F);
+        resultadoCostoDeInventario = sumaInventarioPromedioDiario * (costoInventarioSimulacion / DIAS_EN_UN_ANO);
         resultadoCostoTotal = resultadoCostoFaltante + resultadoCostoDeOrdenar + resultadoCostoDeInventario;
-        /*System.out.println("Los resultados de la simulacion son:");
-        System.out.println("Costo faltante = " + resultadoCostoFaltante);
-        System.out.println("Costo de Orden = " + resultadoCostoDeOrdenar);
-        System.out.println("Costo de inventario = " + resultadoCostoDeInventario);
-        System.out.println("resultadoCostoTotal = " + resultadoCostoTotal);
-        System.out.println();*/
 
         mostrarCostos(resultadoCostoFaltante, resultadoCostoDeOrdenar, resultadoCostoDeInventario, resultadoCostoTotal);
 
@@ -247,7 +251,6 @@ public class Simulacion {
             qmin = q;
             rmin = r;
         }
-
     }
 
     // Muestra los costos finales de la corrida de simulacion en la pantalla
