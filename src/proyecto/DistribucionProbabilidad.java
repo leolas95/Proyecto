@@ -38,6 +38,12 @@ public class DistribucionProbabilidad {
         return acumulado;
     }
 
+    public boolean frecuenciaAcumuladaEsUno() {
+        float frecuenciaAcumulada = frecuenciaAcumulada();
+        float epsilon = 0.000001F;
+        return Math.abs(frecuenciaAcumulada - 1.0F) < epsilon;
+    }
+
     public int obtenerValorMinimo() {
         return Collections.min(valores);
     }

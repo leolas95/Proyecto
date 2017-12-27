@@ -3,28 +3,30 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.*?>
-<AnchorPane fx:id="ventana" xmlns="http://javafx.com/javafx/8.0.131" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.Controller">
+<AnchorPane fx:id="ventana" xmlns="http://javafx.com/javafx/8.0.131" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.ControladorSimulacion">
    <children>
-      <SplitPane dividerPositions="0.2463261021693492">
+      <SplitPane dividerPositions="0.5">
         <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" SplitPane.resizableWithParent="false">
+          <AnchorPane id="anchorPaneCuadroIzquierdo" minHeight="0.0" minWidth="0.0" prefHeight="493.0" prefWidth="291.0" SplitPane.resizableWithParent="false">
                <children>
-                  <Text layoutX="35.0" layoutY="107.0" strokeType="OUTSIDE" strokeWidth="0.0" text="R" />
-                  <Spinner fx:id="valorQSpinner" editable="true" layoutX="56.0" layoutY="39.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="140.0" />
-                  <Spinner fx:id="valorRSpinner" editable="true" layoutX="56.0" layoutY="90.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="140.0" />
-                  <Text id="textLimitesQ" fx:id="limitesQText" layoutX="206.0" layoutY="56.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0 &lt;= Q &lt;= 1000" textAlignment="CENTER" wrappingWidth="137.5546875" />
-                  <Text id="textLimitesR" fx:id="limitesRText" layoutX="204.0" layoutY="107.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0 &lt;= R &lt;= 2000" textAlignment="CENTER" wrappingWidth="141.505859375" />
-                  <Text fx:id="costoFaltanteText" layoutX="33.0" layoutY="197.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo faltante = " />
-                  <Text fx:id="costoOrdenText" layoutX="34.0" layoutY="214.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo de Orden = " />
-                  <Text fx:id="costoInventarioText" layoutX="33.0" layoutY="229.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo de inventario = " />
-                  <Separator layoutX="35.0" layoutY="129.0" prefHeight="0.0" prefWidth="289.0" />
-                  <Text layoutX="98.0" layoutY="167.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Resultados de la simulacion">
+                  <Text layoutX="41.0" layoutY="166.0" strokeType="OUTSIDE" strokeWidth="0.0" text="R" />
+                  <Spinner fx:id="valorQSpinner" editable="true" layoutX="63.0" layoutY="72.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="140.0" />
+                  <Spinner fx:id="valorRSpinner" editable="true" layoutX="62.0" layoutY="149.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="140.0" />
+                  <Text id="textLimitesQ" fx:id="limitesQText" layoutX="64.0" layoutY="60.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0 &lt;= Q &lt;= 1000" textAlignment="CENTER" wrappingWidth="137.5546875" />
+                  <Text id="textLimitesR" fx:id="limitesRText" layoutX="62.0" layoutY="135.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0 &lt;= R &lt;= 2000" textAlignment="CENTER" wrappingWidth="141.505859375" />
+                  <Text fx:id="costoFaltanteText" layoutX="14.0" layoutY="264.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo faltante = " />
+                  <Text fx:id="costoOrdenText" layoutX="15.0" layoutY="281.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo de Orden = " />
+                  <Text fx:id="costoInventarioText" layoutX="14.0" layoutY="296.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo de inventario = " />
+                  <Separator layoutY="200.0" prefHeight="0.0" prefWidth="289.0" />
+                  <Text layoutX="42.0" layoutY="230.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Resultados de la simulacion" textAlignment="CENTER" underline="true">
                      <font>
-                        <Font size="15.0" />
+                        <Font size="18.0" />
                      </font>
                   </Text>
-                  <Text fx:id="costoTotalText" layoutX="33.0" layoutY="246.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo Total = " />
-                  <Text layoutX="34.0" layoutY="56.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Q" textAlignment="CENTER" />
+                  <Text fx:id="costoTotalText" layoutX="14.0" layoutY="313.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo Total = " />
+                  <Text layoutX="41.0" layoutY="89.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Q" textAlignment="CENTER" />
+                  <Text fx:id="costoTotalText1" layoutX="12.0" layoutY="342.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Q minimo = " />
+                  <Text fx:id="costoTotalText11" layoutX="11.0" layoutY="366.0" strokeType="OUTSIDE" strokeWidth="0.0" text="R minimo = " />
                </children>
             </AnchorPane>
           <AnchorPane SplitPane.resizableWithParent="false">

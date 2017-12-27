@@ -2,6 +2,7 @@ package proyecto;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 public class Simulacion {
 
@@ -35,12 +36,12 @@ public class Simulacion {
     private ArrayList<Integer> aleatoriosEntrega = new ArrayList<>();
     private ArrayList<Integer> aleatoriosEspera = new ArrayList<>();
 
-    private Controller controller;
+    private ControladorSimulacion controladorSimulacion;
 
     Simulacion(DistribucionProbabilidad tablaDemanda, DistribucionProbabilidad tablaTiempoEntrega,
                DistribucionProbabilidad tablaTiempoEspera, int diasSimulacion, int costoInventarioSimulacion,
                int costoOrdenarSimulacion, int costoFaltanteConEsperaSimulacion, int costoFaltanteSinEsperaSimulacion, int inventarioInicial,
-               Controller controller) {
+               ControladorSimulacion controladorSimulacion) {
         this.tablaDemanda = tablaDemanda;
         this.tablaTiempoEntrega = tablaTiempoEntrega;
         this.tablaTiempoEspera = tablaTiempoEspera;
@@ -50,7 +51,7 @@ public class Simulacion {
         this.costoFaltanteConEsperaSimulacion = costoFaltanteConEsperaSimulacion;
         this.costoFaltanteSinEsperaSimulacion = costoFaltanteSinEsperaSimulacion;
         this.inventarioInicial = inventarioInicial;
-        this.controller = controller;
+        this.controladorSimulacion = controladorSimulacion;
 
         init();
 
@@ -93,7 +94,8 @@ public class Simulacion {
 
     void ejecutar(int q, int r) {
         // Inicializamos la tabla en la interfaz
-        controller.inicializarTablaSimulacion();
+        controladorSimulacion.inicializarTablaSimulacion();
+        Random random = new Random();
 
         ArrayList<FaltanteEnEspera> registroFaltantes = new ArrayList<>();
 
@@ -185,7 +187,8 @@ public class Simulacion {
             }
 
             // Esto luego se reemplaza por numeros aleatorios "de verdad"
-            nroAleatorioDemanda = aleatoriosDemanda.get(diaActual - 1);
+//            nroAleatorioDemanda = aleatoriosDemanda.get(diaActual - 1);
+            nroAleatorioDemanda = random.nextInt(99);
 
             demanda = tablaDemanda.obtenerValor(nroAleatorioDemanda);
             inventarioFinal = inventarioInicialCorrida - demanda;
@@ -201,8 +204,9 @@ public class Simulacion {
 
                 // Cuando eliminemos aleatoriosEspera, el if es innecesario, solo nos quedamos con el cuerpo
                 // Obten el tiempo de espera
-                if (indiceEspera < aleatoriosEspera.size())
-                    nroAleatorioTiempoEspera = aleatoriosEspera.get(indiceEspera++);
+                /*if (indiceEspera < aleatoriosEspera.size())
+                    nroAleatorioTiempoEspera = aleatoriosEspera.get(indiceEspera++);*/
+                nroAleatorioTiempoEspera = random.nextInt(99);
                 tiempoEspera = tablaTiempoEspera.obtenerValor(nroAleatorioTiempoEspera);
 
                 // Si el cliente espera, guardamos lo que tenemos pendiente
@@ -217,7 +221,8 @@ public class Simulacion {
             // Pregunta si hay que hacer un pedido
             if (inventarioFinal < r && !hayOrdenesPendiente) {
                 nroOrden++;
-                nroAleatorioTiempoEntrega = aleatoriosEntrega.get(indiceEntrega++);
+//                nroAleatorioTiempoEntrega = aleatoriosEntrega.get(indiceEntrega++);
+                nroAleatorioTiempoEntrega = random.nextInt(99);
                 tiempoEntrega = tablaTiempoEntrega.obtenerValor(nroAleatorioTiempoEntrega);
                 hayOrdenesPendiente = true;
             }
@@ -256,10 +261,10 @@ public class Simulacion {
     // Muestra los costos finales de la corrida de simulacion en la pantalla
     private void mostrarCostos(float resultadoCostoFaltante, float resultadoCostoDeOrdenar,
                                float resultadoCostoDeInventario, float resultadoCostoTotal) {
-        controller.costoFaltanteText.setText("Costo faltante = " + resultadoCostoFaltante);
-        controller.costoOrdenText.setText("Costo de Orden = " + resultadoCostoDeOrdenar);
-        controller.costoInventarioText.setText("Costo de inventario = " + resultadoCostoDeInventario);
-        controller.costoTotalText.setText("Costo Total = " + resultadoCostoTotal);
+        controladorSimulacion.costoFaltanteText.setText("Costo faltante = " + resultadoCostoFaltante);
+        controladorSimulacion.costoOrdenText.setText("Costo de Orden = " + resultadoCostoDeOrdenar);
+        controladorSimulacion.costoInventarioText.setText("Costo de inventario = " + resultadoCostoDeInventario);
+        controladorSimulacion.costoTotalText.setText("Costo Total = " + resultadoCostoTotal);
     }
 
     // Crea una nueva fila con los argumentos, y la inserta en la tabla de eventos
@@ -272,7 +277,7 @@ public class Simulacion {
         Inventario inventario = new Inventario(diaActual, inventarioInicialCorrida, nroAleatorioDemanda, demanda,
                 inventarioFinal, inventarioPromedio, faltante, nroOrden, hayOrdenesPendiente, nroAleatorioTiempoEntrega,
                 tiempoEntrega, nroAleatorioTiempoEspera, tiempoEspera);
-        controller.insertarFila(inventario);
+        controladorSimulacion.insertarFila(inventario);
     }
 
     float getQmin() {

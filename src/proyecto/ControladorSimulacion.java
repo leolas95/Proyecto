@@ -16,9 +16,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 
-public class Controller implements Initializable {
+public class ControladorSimulacion implements Initializable {
 
     // Declaramos los text utilizables
     @FXML public Text limitesQText;
@@ -56,7 +57,7 @@ public class Controller implements Initializable {
     private int costoDeOrden, costoDeInventario, escasezConEspera, escasezSinEspera, inventarioInicial, diasSimulacion;
 
     // Modificar la ruta segun cada quien
-    private final static String RUTA_ARCHIVO_DEFECTO = "C:\\Users\\Leonardo\\Documents\\Parametros.txt";
+    private final static String RUTA_ARCHIVO_DEFECTO = "Parametros.txt";
 
     private Simulacion simulacion;
 
@@ -183,6 +184,7 @@ public class Controller implements Initializable {
             FileReader f = new FileReader(rutaArchivo);
             BufferedReader br = new BufferedReader(f);
 
+            // Lee las tablas
             String lineaDemanda = br.readLine();
             String lineaProbDemanda = br.readLine();
 
@@ -192,23 +194,50 @@ public class Controller implements Initializable {
             String lineaTiempoEspera = br.readLine();
             String lineaProbTiempoEspera = br.readLine();
 
-            String lineaCostoInventario = br.readLine();
-            costoDeInventario = Integer.parseInt(lineaCostoInventario);
+            Iterator<String> iterator = br.lines().iterator();
+            while (iterator.hasNext()) {
+                String lineaActual;
 
-            String lineaCostoOrden = br.readLine();
-            costoDeOrden = Integer.parseInt(lineaCostoOrden);
+                // Ignora lineas vacias
+                if ((lineaActual = iterator.next()).isEmpty())
+                    continue;
 
-            String lineaCostoFaltante_espera = br.readLine();
-            escasezConEspera = Integer.parseInt(lineaCostoFaltante_espera);
+                // Separa lo que esta antes y despues del igual. Antes esta el nombre del parametro, y despues su valor
+                String[] clavesValores = lineaActual.split("=");
 
-            String lineaCostoFaltante_sinEspera = br.readLine();
-            escasezSinEspera = Integer.parseInt(lineaCostoFaltante_sinEspera);
+                if (clavesValores.length != 2) {
+                    System.out.println("Error al leer el archivo de parametros. Cada linea debe tener la " +
+                            "forma \'clave = valor\'");
+                    System.exit(1);
+                }
 
-            String lineaInventarioInicial = br.readLine();
-            inventarioInicial = Integer.parseInt(lineaInventarioInicial);
-
-            String lineaDiasSimulacion = br.readLine();
-            diasSimulacion = Integer.parseInt(lineaDiasSimulacion);
+                // Lee el valor y lo guarda en la variable correspondiente
+                switch (clavesValores[0]) {
+                    // h: costo de inventario
+                    case "h":
+                        costoDeInventario = Integer.parseInt(clavesValores[1]);
+                        break;
+                    // k: costo por pedido/orden
+                    case "k":
+                        costoDeOrden = Integer.parseInt(clavesValores[1]);
+                        break;
+                    // fce: costo de faltante con espera de cliente
+                    case "fce":
+                        escasezConEspera = Integer.parseInt(clavesValores[1]);
+                        break;
+                    // fse: costo de faltante sin espera de cliente
+                    case "fse":
+                        escasezSinEspera = Integer.parseInt(clavesValores[1]);
+                        break;
+                    // ii: inventario inicial
+                    case "ii":
+                        inventarioInicial = Integer.parseInt(clavesValores[1]);
+                        break;
+                    // dds: dias de simulacion
+                    case "dds":
+                        diasSimulacion = Integer.parseInt(clavesValores[1]);
+                }
+            }
 
             String[] demanda = lineaDemanda.split("\\|");
             String[] probDemanda = lineaProbDemanda.split("\\|");
@@ -222,6 +251,9 @@ public class Controller implements Initializable {
             tablaDemanda = crearTabla(demanda, probDemanda);
             tablaEntregas = crearTabla(tiempoEntrega, probTiempoEntrega);
             tablaEsperas = crearTabla(tiempoEspera, probTiempoEspera);
+
+            /* TODO: verificar que la frecuencia acumualada sea igual a uno. Puede ser con frecuenciaAcumulada()
+             * o frecuenciaAcumuladaEsUno() de la clase DistribucionProbabilidad */
 
         } catch (IOException ex) {
             System.out.println("Error leyendo archivo de parametros");
