@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Line?>
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@Estilos.css" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.ControladorInstrucciones">
+    <children>
+        <Button layoutX="45.0" layoutY="354.0" mnemonicParsing="false" onAction="#atras" prefHeight="25.0" prefWidth="116.0" text="ATRAS" />
+        <Label fx:id="title" alignment="CENTER" prefHeight="70.0" prefWidth="600.0" text="Simulador de Inventario" />
+        <DialogPane contentText="Los campos de &quot;Demanda&quot;, &quot;Tiempo de espera&quot; y &quot;Tiempo de entrega&quot; son secuencias de números enteros y deben estar separados por coma ( , ). Las probabilidades son secuencias de números decimales, e igualmente separadas por coma. Ejemplo: 2, 9, 36, 12" layoutX="48.0" layoutY="102.0" prefHeight="92.0" prefWidth="505.0" />
+        <DialogPane contentText="La primera, tercera y quinta línea (que corresponden respectivamente a: la demanda, tiempo de entrega y tiempo de espera) del archivo de texto deben ser secuencias de números separados por una barra ( | ).  Las probabilidades son secuencias de números decimales, e igualmente separadas por barra. " expanded="true" layoutX="48.0" layoutY="191.0" prefHeight="100.0" prefWidth="505.0" />
+        <Label fx:id="subrayar" layoutX="48.0" layoutY="94.0" prefHeight="17.0" prefWidth="505.0" text="   MANUAL" />
+        <Label fx:id="subrayar" layoutX="48.0" layoutY="183.0" prefHeight="17.0" prefWidth="505.0" text="   ARCHIVO" />
+        <Label alignment="CENTER" layoutY="291.0" prefHeight="17.0" prefWidth="600.0" text="Abreviaciones: costo de inventario (h), costo de ordenar (k), costo faltante con espera (fce)," />
+        <Label alignment="CENTER" layoutY="308.0" prefHeight="17.0" prefWidth="600.0" text="costo faltante sin espera (fse), inventario inicial (ii), dias de simulación (dds). En ese orden." />
+        <Line endX="-30.0" layoutX="572.0" layoutY="325.0" startX="-100.0" stroke="#077bff" />
+    </children>
+</Pane>

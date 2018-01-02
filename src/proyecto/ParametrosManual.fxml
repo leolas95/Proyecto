@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@Estilos.css" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.ControladorParametrosManual">
+    <children>
+        <Button layoutX="45.0" layoutY="354.0" mnemonicParsing="false" onAction="#atras" prefHeight="25.0" prefWidth="116.0" text="ATRAS" />
+        <Label fx:id="title" alignment="CENTER" prefHeight="70.0" prefWidth="600.0" text="Simulador de Inventario">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font></Label>
+        <Label layoutX="45.0" layoutY="110.0" text="Demanda diaria" />
+        <Label layoutX="45.0" layoutY="140.0" text="Probabilidad" />
+        <Label layoutX="45.0" layoutY="186.0" text="Tiempo entrega" />
+        <Label layoutX="45.0" layoutY="218.0" text="Probabilidad" />
+        <Label layoutX="45.0" layoutY="267.0" text="Tiempo espera" />
+        <Label layoutX="45.0" layoutY="298.0" text="Probabilidad" />
+        <TextField fx:id="demandaDiaria_tf" layoutX="134.0" layoutY="106.0" />
+        <TextField fx:id="probDemanda_tf" layoutX="134.0" layoutY="136.0" />
+        <TextField fx:id="tiempoEntrega_tf" layoutX="134.0" layoutY="182.0" />
+        <TextField fx:id="probEntrega_tf" layoutX="134.0" layoutY="214.0" />
+        <TextField fx:id="tiempoEspera_tf" layoutX="134.0" layoutY="263.0" />
+        <TextField fx:id="probEspera_tf" layoutX="134.0" layoutY="294.0" />
+        <Separator layoutX="300.0" layoutY="92.0" orientation="VERTICAL" prefHeight="245.0" prefWidth="5.0" />
+        <Label layoutX="323.0" layoutY="140.0" text="Inventario inicial" />
+        <Label layoutX="323.0" layoutY="206.0" text="Costo de inventario" />
+        <Label layoutX="323.0" layoutY="236.0" text="Costo de ordenar" />
+        <Label layoutX="323.0" layoutY="266.0" text="Faltante (con espera)" />
+        <Label layoutX="323.0" layoutY="298.0" text="Faltante (sin espera)" />
+        <TextField fx:id="inventarioIni_tf" layoutX="444.0" layoutY="136.0" prefHeight="25.0" prefWidth="116.0" />
+        <TextField fx:id="costoInventario_tf" layoutX="444.0" layoutY="203.0" prefHeight="25.0" prefWidth="116.0" />
+        <TextField fx:id="costoOrdenar_tf" layoutX="444.0" layoutY="233.0" prefHeight="25.0" prefWidth="116.0" />
+        <TextField fx:id="faltante1_tf" layoutX="444.0" layoutY="263.0" prefHeight="25.0" prefWidth="116.0" />
+        <TextField fx:id="faltante2_tf" layoutX="444.0" layoutY="294.0" prefHeight="25.0" prefWidth="116.0" />
+        <Label fx:id="subrayar" alignment="CENTER" layoutX="321.0" layoutY="175.0" prefHeight="15.0" prefWidth="238.0" text="COSTOS">
+            <font>
+                <Font name="Arial" size="12.0" />
+            </font>
+        </Label>
+        <Label layoutX="323.0" layoutY="110.0" text="Días a simular" />
+        <TextField fx:id="dias_tf" layoutX="444.0" layoutY="106.0" prefHeight="25.0" prefWidth="116.0" />
+        <Button layoutX="444.0" layoutY="354.0" mnemonicParsing="false" onAction="#aceptar" prefHeight="25.0" prefWidth="116.0" text="ACEPTAR" />
+    </children>
+</Pane>

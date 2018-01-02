@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.Pane?>
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@Estilos.css" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.ControladorParametrosArchivo">
+    <children>
+        <Button layoutX="45.0" layoutY="354.0" mnemonicParsing="false" onAction="#atras" prefHeight="25.0" prefWidth="116.0" text="ATRAS" />
+        <Button layoutX="444.0" layoutY="354.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="116.0" text="ACEPTAR" />
+        <Label fx:id="title" alignment="CENTER" prefHeight="70.0" prefWidth="600.0" text="Simulador de Inventario" />
+        <Button fx:id="seleccionarArchivo_btn" layoutX="125.0" layoutY="132.0" mnemonicParsing="false" onAction="#seleccionarArchivoBtn" text="Seleccionar archivo" />
+        <ListView fx:id="listView" layoutX="270.0" layoutY="134.0" prefHeight="25.0" prefWidth="200.0" />
+        <Label fx:id="subrayar" alignment="BOTTOM_CENTER" contentDisplay="TOP" layoutY="200.0" prefHeight="20.0" prefWidth="600.0" text="Atencion [!] el archivo seleccionado tiene que cumplir con el formato de archivo correspondiente" />
+        <Label fx:id="subrayar" alignment="TOP_CENTER" layoutY="220.0" prefHeight="20.0" prefWidth="600.0" text="para que pueda ser procesado. Puede revisar las instrucciones si no se conoce el formato." />
+        <Button layoutX="233.0" layoutY="354.0" mnemonicParsing="false" onAction="#instrucciones" prefHeight="25.0" prefWidth="135.0" text="INSTRUCCIONES" />
+    </children>
+</Pane>
