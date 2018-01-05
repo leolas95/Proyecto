@@ -3,13 +3,18 @@ package proyecto;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -18,6 +23,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ResourceBundle;
+
+import static proyecto.Main.stage;
 
 public class ControladorSimulacion implements Initializable {
 
@@ -30,8 +37,8 @@ public class ControladorSimulacion implements Initializable {
     @FXML public Text costoTotalText;
 
     // Declaramos los spinners utilizables
-    @FXML private Spinner<Integer> valorQSpinner = new Spinner<>();
-    @FXML private Spinner<Integer> valorRSpinner = new Spinner<>();
+    @FXML public Spinner<Integer> valorQSpinner = new Spinner<>();
+    @FXML public Spinner<Integer> valorRSpinner = new Spinner<>();
 
     // Declaramos la tabla y las columnas
     @FXML private TableView<Inventario> inventarioTV;
@@ -50,31 +57,53 @@ public class ControladorSimulacion implements Initializable {
 
     private ObservableList<Inventario> inventarios;
 
-    private DistribucionProbabilidad tablaDemanda;
-    private DistribucionProbabilidad tablaEntregas;
-    private DistribucionProbabilidad tablaEsperas;
+    private static DistribucionProbabilidad tablaDemanda;
+    private static DistribucionProbabilidad tablaEntregas;
+    private static DistribucionProbabilidad tablaEsperas;
 
-    private int costoDeOrden, costoDeInventario, escasezConEspera, escasezSinEspera, inventarioInicial, diasSimulacion;
+    private static int costoDeOrden, costoDeInventario, escasezConEspera, escasezSinEspera, inventarioInicial, diasSimulacion;
 
     // Modificar la ruta segun cada quien
     private final static String RUTA_ARCHIVO_DEFECTO = "Parametros.txt";
 
     private Simulacion simulacion;
 
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        inventarioTV.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        //crearTablasDePrueba();
+        //leerParametrosDeArchivo(RUTA_ARCHIVO_DEFECTO);
 
-//        crearTablasDePrueba();
-        leerParametrosDeArchivo(RUTA_ARCHIVO_DEFECTO);
+        //Se inicializan los parametros con los valores que recibe ControladorParametrosManual del archivo
+        tablaDemanda = ControladorParametrosManual.tablaDemanda;
+        tablaEntregas = ControladorParametrosManual.tablaEntregas;
+        tablaEsperas = ControladorParametrosManual.tablaEsperas;
 
+        costoDeOrden = ControladorParametrosManual.costoDeOrden;
+        costoDeInventario = ControladorParametrosManual.costoDeInventario;
+        escasezConEspera = ControladorParametrosManual.escasezConEspera;
+        escasezSinEspera = ControladorParametrosManual.escasezSinEspera;
+        inventarioInicial = ControladorParametrosManual.inventarioInicial;
+        diasSimulacion = ControladorParametrosManual.diasSimulacion;
+
+        //Se calcula Q minimo y Q max
         int qmin = calcularQAsterisco(costoDeOrden, tablaDemanda.obtenerValorMinimo(), costoDeInventario, escasezSinEspera);
         int qmax = calcularQAsterisco(costoDeOrden, tablaDemanda.obtenerValorMaximo(), costoDeInventario, escasezConEspera);
 
+        //Se calcula R minimo y R maximo
         int rmin = calcularPuntoDeReorden(tablaDemanda.obtenerValorMinimo(), diasSimulacion, qmin, tablaEntregas.obtenerValorMinimo());
         int rmax = calcularPuntoDeReorden(tablaDemanda.obtenerValorMaximo(), diasSimulacion, qmax, tablaEntregas.obtenerValorMaximo());
 
         inicializarSpinners(qmin, qmax, rmin, rmax);
+
+        //inventarioTV.managedProperty().bind(inventarioTV.visibleProperty());
+        if(ControladorParametrosManual.tablaEventos)
+            inventarioTV.setManaged(true);
+        else
+            inventarioTV.setManaged(false);
+
+
+
 
         // Se crea la simulacion con los datos que no variaran: las tablas y estos costos con constantes
         simulacion = new Simulacion(tablaDemanda, tablaEntregas, tablaEsperas, diasSimulacion,
@@ -86,12 +115,15 @@ public class ControladorSimulacion implements Initializable {
 
         for (int qactual = qmin; qactual <= qmax; qactual++) {
             for (int ractual = rmin; ractual <= rmax; ractual++) {
+                valorQSpinner.getValueFactory().setValue(qactual);
+                valorRSpinner.getValueFactory().setValue(ractual);
                 simulacion.ejecutar(qactual, ractual);
             }
         }
 
-        System.out.println("qmin = " + simulacion.getQmin());
-        System.out.println("rmax = " + simulacion.getRmin());
+        //System.out.println("qmin = " + simulacion.getQmin());
+        //System.out.println("rmax = " + simulacion.getRmin());
+
     }
 
     private void inicializarListeners() {
@@ -386,5 +418,19 @@ public class ControladorSimulacion implements Initializable {
         probabilidadesEspera.add(0.1F);
 
         tablaEsperas = new DistribucionProbabilidad(valoresEspera, probabilidadesEspera);
+    }
+
+    /* Regresar al menu principal */
+    @FXML private void atras() {
+        try {
+            Parent mostrarMenu = FXMLLoader.load(getClass().getResource("ParametrosManual.fxml"));
+            Scene scene = new Scene(mostrarMenu, Main.ANCHO_VENTANA, Main.ALTURA_VENTANA);
+            Main.stage.setScene(scene);
+            Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+            stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
+            stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
