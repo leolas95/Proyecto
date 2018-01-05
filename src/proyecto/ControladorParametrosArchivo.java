@@ -2,11 +2,13 @@ package proyecto;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import javafx.stage.FileChooser;
+import javafx.stage.Screen;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,24 +17,80 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import static proyecto.Main.stage;
+
 public class ControladorParametrosArchivo {
 
     @FXML private ListView listView;
 
     private Alert alerta;
 
-    private DistribucionProbabilidad tablaDemanda;
-    private DistribucionProbabilidad tablaEntregas;
-    private DistribucionProbabilidad tablaEsperas;
+    public static DistribucionProbabilidad tablaDemanda;
+    public static DistribucionProbabilidad tablaEntregas;
+    public static DistribucionProbabilidad tablaEsperas;
 
-    private int costoDeOrden, costoDeInventario, escasezConEspera, escasezSinEspera, inventarioInicial, diasSimulacion;
+    public static int costoDeOrden, costoDeInventario, escasezConEspera, escasezSinEspera, inventarioInicial, diasSimulacion;
+
+    public static boolean archivoCargado = false;
+    public static int archivoErroneo = 0;
+
+    public static FileChooser fileChooser;
+    public static File selectedFile;
+
+    //Para el boton "ACEPTAR" -> Va hacia el controladorParametrosManual con los datos del archivo
+    @FXML private void aceptar(){
+        try{
+            if(selectedFile==null){
+                alerta = new Alert(Alert.AlertType.ERROR);
+                alerta.setHeaderText("ERROR");
+                alerta.setContentText("Archivo no seleccionado!");
+                alerta.show();
+                return;
+            }
+
+            if(archivoErroneo==1){
+                alerta = new Alert(Alert.AlertType.ERROR);
+                alerta.setHeaderText("ERROR");
+                alerta.setContentText("En la tabla de -distribucion de demanda- la suma de de la frecuencia no es igual a 1");
+                alerta.show();
+                return;
+            }
+            if(archivoErroneo==2){
+                alerta = new Alert(Alert.AlertType.ERROR);
+                alerta.setHeaderText("ERROR");
+                alerta.setContentText("En la tabla de -distribucion de tiempos de entrega- la suma de de la frecuencia no es igual a 1");
+                alerta.show();
+                return;
+            }
+            if(archivoErroneo==3){
+                alerta = new Alert(Alert.AlertType.ERROR);
+                alerta.setHeaderText("ERROR");
+                alerta.setContentText("En la tabla de -distribucion de tiempos de esperas- la suma de de la frecuencia no es igual a 1");
+                alerta.show();
+                return;
+            }
+
+            archivoCargado = true;
+            Parent mostrarMenu = FXMLLoader.load(getClass().getResource("ParametrosManual.fxml"));
+            Scene scene = new Scene(mostrarMenu, Main.ANCHO_VENTANA, Main.ALTURA_VENTANA);
+            Main.stage.setScene(scene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     // Para el boton "ATRAS" -> Regresar al menu principal
     @FXML private void atras() {
         try {
+            selectedFile = null;
+            archivoCargado = false;
             Parent mostrarMenu = FXMLLoader.load(getClass().getResource("Menu.fxml"));
             Scene scene = new Scene(mostrarMenu, Main.ANCHO_VENTANA, Main.ALTURA_VENTANA);
             Main.stage.setScene(scene);
+
+            Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+            stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
+            stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -51,15 +109,20 @@ public class ControladorParametrosArchivo {
 
     // Para el boton "Seleccionar archivo" -> solo acepta archivos de texto y verifica si este cumple con el formato establecido
     public void seleccionarArchivoBtn() throws IOException {
-        FileChooser fileChooser = new FileChooser();
+        fileChooser = new FileChooser();
 
         // Para seleccionar solamente archivos de texto
-        FileChooser.ExtensionFilter extFilter =
-                new FileChooser.ExtensionFilter("TEXT files (*.txt)", "*.txt");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TEXT files (*.txt)", "*.txt");
+
         fileChooser.getExtensionFilters().add(extFilter);
 
         // Abrir
-        File selectedFile = fileChooser.showOpenDialog(null);
+        selectedFile = fileChooser.showOpenDialog(null);
+
+        if(selectedFile==null){
+            System.out.println("Archivo no seleccionado\n");
+            return;
+        }
 
         // Verificar que el archivo cumpla con los parámetros (si es que no esta vacio)
         if (selectedFile.length() == 0) {
@@ -146,9 +209,36 @@ public class ControladorParametrosArchivo {
             tablaEntregas = crearTabla(tiempoEntrega, probTiempoEntrega);
             tablaEsperas = crearTabla(tiempoEspera, probTiempoEspera);
 
-            /* TODO: verificar que la frecuencia acumualada sea igual a uno. Puede ser con frecuenciaAcumulada()
-             * o frecuenciaAcumuladaEsUno() de la clase DistribucionProbabilidad */
+            if(!tablaDemanda.frecuenciaAcumuladaEsUno()){
+                alerta = new Alert(Alert.AlertType.ERROR);
+                alerta.setHeaderText("ERROR");
+                alerta.setContentText("En la tabla de -distribucion de demanda- la suma de de la frecuencia no es igual a 1");
+                alerta.show();
+                archivoErroneo = 1;
+                return;
+            }
+            if(!tablaEntregas.frecuenciaAcumuladaEsUno()){
+                alerta = new Alert(Alert.AlertType.ERROR);
+                alerta.setHeaderText("ERROR");
+                alerta.setContentText("En la tabla de -distribucion de tiempos de entrega- la suma de de la frecuencia no es igual a 1");
+                alerta.show();
+                archivoErroneo = 2;
+                return;
+            }
+            if(!tablaEsperas.frecuenciaAcumuladaEsUno()){
+                alerta = new Alert(Alert.AlertType.ERROR);
+                alerta.setHeaderText("ERROR");
+                alerta.setContentText("En la tabla de -distribucion de tiempos de esperas- la suma de de la frecuencia no es igual a 1");
+                alerta.show();
+                archivoErroneo = 3;
+                return;
+            }
+
+            archivoErroneo = 0;
+
+            f.close();
         }
+
     }
 
     /**

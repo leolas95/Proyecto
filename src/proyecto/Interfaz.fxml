@@ -1,59 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.*?>
-<AnchorPane fx:id="ventana" xmlns="http://javafx.com/javafx/8.0.131" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.ControladorSimulacion">
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane fx:id="ventana" stylesheets="@Estilos.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.ControladorSimulacion">
    <children>
-      <SplitPane dividerPositions="0.5">
-        <items>
-          <AnchorPane id="anchorPaneCuadroIzquierdo" minHeight="0.0" minWidth="0.0" prefHeight="493.0" prefWidth="291.0" SplitPane.resizableWithParent="false">
-               <children>
-                  <Text layoutX="41.0" layoutY="166.0" strokeType="OUTSIDE" strokeWidth="0.0" text="R" />
-                  <Spinner fx:id="valorQSpinner" editable="true" layoutX="63.0" layoutY="72.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="140.0" />
-                  <Spinner fx:id="valorRSpinner" editable="true" layoutX="62.0" layoutY="149.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="140.0" />
-                  <Text id="textLimitesQ" fx:id="limitesQText" layoutX="64.0" layoutY="60.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0 &lt;= Q &lt;= 1000" textAlignment="CENTER" wrappingWidth="137.5546875" />
-                  <Text id="textLimitesR" fx:id="limitesRText" layoutX="62.0" layoutY="135.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0 &lt;= R &lt;= 2000" textAlignment="CENTER" wrappingWidth="141.505859375" />
-                  <Text fx:id="costoFaltanteText" layoutX="14.0" layoutY="264.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo faltante = " />
-                  <Text fx:id="costoOrdenText" layoutX="15.0" layoutY="281.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo de Orden = " />
-                  <Text fx:id="costoInventarioText" layoutX="14.0" layoutY="296.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo de inventario = " />
-                  <Separator layoutY="200.0" prefHeight="0.0" prefWidth="289.0" />
-                  <Text layoutX="42.0" layoutY="230.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Resultados de la simulacion" textAlignment="CENTER" underline="true">
-                     <font>
-                        <Font size="18.0" />
-                     </font>
-                  </Text>
-                  <Text fx:id="costoTotalText" layoutX="14.0" layoutY="313.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo Total = " />
-                  <Text layoutX="41.0" layoutY="89.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Q" textAlignment="CENTER" />
-                  <Text fx:id="costoTotalText1" layoutX="12.0" layoutY="342.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Q minimo = " />
-                  <Text fx:id="costoTotalText11" layoutX="11.0" layoutY="366.0" strokeType="OUTSIDE" strokeWidth="0.0" text="R minimo = " />
-               </children>
-            </AnchorPane>
-          <AnchorPane SplitPane.resizableWithParent="false">
-               <children>
-                  <ScrollPane>
-                     <content>
-                        <TableView id="tabla" fx:id="inventarioTV">
-                          <columns>
-                            <TableColumn id="columnaDia" fx:id="diaTC" editable="false" maxWidth="50.0" prefWidth="50.0" resizable="false" sortable="false" text="Día" />
-                            <TableColumn id="columnaInvInicial" fx:id="invInicioTC" editable="false" maxWidth="100.0" prefWidth="100.0" resizable="false" sortable="false" text="Inventario Inicial" />
-                              <TableColumn id="columnaAleatorioDemanda" fx:id="aleatorioDemandaTC" editable="false" maxWidth="150.0" minWidth="0.0" prefWidth="150.0" resizable="false" sortable="false" text="No. aleatorio (Demanda)" />
-                              <TableColumn fx:id="DemandaTC" prefWidth="75.0" text="Demanda" />
-                              <TableColumn id="columnaInvFinal" fx:id="invFinalTC" editable="false" maxWidth="60.0" minWidth="0.0" prefWidth="60.0" resizable="false" sortable="false" text="Inv. Final" />
-                              <TableColumn id="columnaInvPromedio" fx:id="invPromTC" editable="false" maxWidth="90.0" minWidth="0.0" prefWidth="90.0" resizable="false" sortable="false" text="Inv. Promedio" />
-                              <TableColumn id="columnaFaltante" fx:id="FaltanteTC" editable="false" maxWidth="50.0" prefWidth="50.0" resizable="false" sortable="false" text="Faltante" />
-                              <TableColumn id="columnaNoOrden" fx:id="noOrdenTC" editable="false" maxWidth="70.0" minWidth="5.0" prefWidth="70.0" resizable="false" sortable="false" text="No. Orden" />
-                              <TableColumn id="columnaAleatorioTiempoEspera" fx:id="aleatorioEntregaTC" editable="false" maxWidth="200.0" minWidth="0.0" prefWidth="140.0" resizable="false" sortable="false" text="No. aleatorio (Entrega)" />
-                              <TableColumn id="columnaTiempoEspera" fx:id="tiempoEntregaTC" editable="false" maxWidth="190.0" prefWidth="120.0" resizable="false" sortable="false" text="Tiempo de entrega" />
-                              <TableColumn fx:id="aleatorioEsperaTC" editable="false" maxWidth="130.0" prefWidth="130.0" resizable="false" sortable="false" text="No. aleatorio (Espera)" />
-                              <TableColumn fx:id="tiempoEsperaTC" editable="false" maxWidth="110.0" prefWidth="110.0" resizable="false" sortable="false" text="Tiempo de Espera" />
-                          </columns>
-                        </TableView>
-                     </content>
-                  </ScrollPane>
-               </children>
-            </AnchorPane>
-        </items>
-      </SplitPane>
+      <Label fx:id="title" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="70.0" prefWidth="338.0" text="Simulador de Inventario">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Label>
+      <Pane layoutY="70.0" prefHeight="400.0" prefWidth="338.0">
+         <children>
+            <Text layoutX="70.0" layoutY="141.0" strokeType="OUTSIDE" strokeWidth="0.0" text="R" />
+            <Spinner fx:id="valorQSpinner" editable="true" layoutX="91.0" layoutY="47.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="140.0" />
+            <Spinner fx:id="valorRSpinner" editable="true" layoutX="90.0" layoutY="124.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="140.0" />
+            <Text id="textLimitesQ" fx:id="limitesQText" layoutX="92.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0 &lt;= Q &lt;= 1000" textAlignment="CENTER" wrappingWidth="137.5546875" />
+            <Text id="textLimitesR" fx:id="limitesRText" layoutX="90.0" layoutY="110.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0 &lt;= R &lt;= 2000" textAlignment="CENTER" wrappingWidth="141.505859375" />
+            <Text layoutX="69.0" layoutY="64.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Q" textAlignment="CENTER" />
+            <Separator layoutX="19.0" layoutY="186.0" prefHeight="1.0" prefWidth="307.0" />
+            <Text layoutX="41.0" layoutY="216.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Resultados de la simulacion" textAlignment="CENTER" underline="true">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Text>
+            <Text fx:id="costoFaltanteText" layoutX="81.0" layoutY="245.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo faltante = " />
+            <Text fx:id="costoOrdenText" layoutX="81.0" layoutY="260.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo de Orden = " />
+            <Text fx:id="costoInventarioText" layoutX="81.0" layoutY="275.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo de inventario = " />
+            <Text fx:id="costoTotalText" layoutX="81.0" layoutY="290.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Costo Total = " />
+         </children>
+      </Pane>
+      <TableView id="tabla" fx:id="inventarioTV" accessibleRole="IMAGE_VIEW" layoutX="338.0" pickOnBounds="false" prefHeight="470.0" prefWidth="962.0">
+        <columns>
+          <TableColumn id="columnaDia" fx:id="diaTC" editable="false" maxWidth="80.0" resizable="false" sortable="false" text="Día" />
+          <TableColumn id="columnaInvInicial" fx:id="invInicioTC" editable="false" maxWidth="80.0" resizable="false" sortable="false" text="Inventario&#10;   Inicial" />
+            <TableColumn id="columnaAleatorioDemanda" fx:id="aleatorioDemandaTC" editable="false" maxWidth="80.0" resizable="false" sortable="false" text="No. aleatorio&#10;  Demanda" />
+            <TableColumn fx:id="DemandaTC" maxWidth="80.0" resizable="false" text="Demanda" />
+            <TableColumn id="columnaInvFinal" fx:id="invFinalTC" editable="false" maxWidth="80.0" resizable="false" sortable="false" text="Inventario&#10;    Final" />
+            <TableColumn id="columnaInvPromedio" fx:id="invPromTC" editable="false" maxWidth="80.0" resizable="false" sortable="false" text="Inventario&#10;Promedio" />
+            <TableColumn id="columnaFaltante" fx:id="FaltanteTC" editable="false" maxWidth="80.0" resizable="false" sortable="false" text="Faltante" />
+            <TableColumn id="columnaNoOrden" fx:id="noOrdenTC" editable="false" maxWidth="80.0" resizable="false" sortable="false" text="No. Orden" />
+            <TableColumn id="columnaAleatorioTiempoEspera" fx:id="aleatorioEntregaTC" editable="false" maxWidth="80.0" resizable="false" sortable="false" text="No. aleatorio&#10;    Entrega" />
+            <TableColumn id="columnaTiempoEspera" fx:id="tiempoEntregaTC" editable="false" maxWidth="80.0" resizable="false" sortable="false" text="Tiempo&#10;Entrega" />
+            <TableColumn fx:id="aleatorioEsperaTC" editable="false" maxWidth="80.0" resizable="false" sortable="false" text="No. aleatorio&#10;    Espera" />
+            <TableColumn fx:id="tiempoEsperaTC" editable="false" maxWidth="80.0" resizable="false" sortable="false" text="Tiempo&#10; Espera" />
+        </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+      <Button layoutX="14.0" layoutY="426.0" mnemonicParsing="false" onAction="#atras" prefHeight="25.0" prefWidth="116.0" text="ATRAS" />
    </children>
 </AnchorPane>

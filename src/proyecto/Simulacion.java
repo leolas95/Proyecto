@@ -262,9 +262,10 @@ public class Simulacion {
     private void mostrarCostos(float resultadoCostoFaltante, float resultadoCostoDeOrdenar,
                                float resultadoCostoDeInventario, float resultadoCostoTotal) {
         controladorSimulacion.costoFaltanteText.setText("Costo faltante = " + resultadoCostoFaltante);
-        controladorSimulacion.costoOrdenText.setText("Costo de Orden = " + resultadoCostoDeOrdenar);
+        controladorSimulacion.costoOrdenText.setText("Costo de orden = " + resultadoCostoDeOrdenar);
         controladorSimulacion.costoInventarioText.setText("Costo de inventario = " + resultadoCostoDeInventario);
         controladorSimulacion.costoTotalText.setText("Costo Total = " + resultadoCostoTotal);
+
     }
 
     // Crea una nueva fila con los argumentos, y la inserta en la tabla de eventos
