@@ -1,27 +1,36 @@
 package proyecto;
 
+import javafx.animation.ScaleTransition;
+import javafx.animation.SequentialTransition;
+import javafx.animation.TranslateTransition;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.*;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.ResourceBundle;
 
 import static proyecto.Main.stage;
@@ -29,62 +38,89 @@ import static proyecto.Main.stage;
 public class ControladorSimulacion implements Initializable {
 
     // Declaramos los text utilizables
-    @FXML public Text limitesQText;
-    @FXML public Text limitesRText;
-    @FXML public Text costoFaltanteText;
-    @FXML public Text costoOrdenText;
-    @FXML public Text costoInventarioText;
-    @FXML public Text costoTotalText;
+    @FXML
+    public Text limitesQText;
+    @FXML
+    public Text limitesRText;
+    @FXML
+    public Text costoFaltanteText;
+    @FXML
+    public Text costoOrdenText;
+    @FXML
+    public Text costoInventarioText;
+    @FXML
+    public Text costoTotalText;
+    @FXML
+    public Text qMinimaText;
+    @FXML
+    public Text rMinimaText;
 
     // Declaramos los spinners utilizables
-    @FXML public Spinner<Integer> valorQSpinner = new Spinner<>();
-    @FXML public Spinner<Integer> valorRSpinner = new Spinner<>();
+    @FXML
+    public Spinner<Integer> valorQSpinner = new Spinner<>();
+    @FXML
+    public Spinner<Integer> valorRSpinner = new Spinner<>();
 
     // Declaramos la tabla y las columnas
-    @FXML private TableView<Inventario> inventarioTV;
-    @FXML private TableColumn diaTC;
-    @FXML private TableColumn invInicioTC;
-    @FXML private TableColumn aleatorioDemandaTC;
-    @FXML private TableColumn DemandaTC;
-    @FXML private TableColumn invFinalTC;
-    @FXML private TableColumn invPromTC;
-    @FXML private TableColumn FaltanteTC;
-    @FXML private TableColumn noOrdenTC;
-    @FXML private TableColumn aleatorioEntregaTC;
-    @FXML private TableColumn tiempoEntregaTC;
-    @FXML private TableColumn aleatorioEsperaTC;
-    @FXML private TableColumn tiempoEsperaTC;
+    @FXML
+    private TableView<Inventario> inventarioTV;
+    @FXML
+    private TableColumn diaTC;
+    @FXML
+    private TableColumn invInicioTC;
+    @FXML
+    private TableColumn aleatorioDemandaTC;
+    @FXML
+    private TableColumn DemandaTC;
+    @FXML
+    private TableColumn invFinalTC;
+    @FXML
+    private TableColumn invPromTC;
+    @FXML
+    private TableColumn FaltanteTC;
+    @FXML
+    private TableColumn noOrdenTC;
+    @FXML
+    private TableColumn aleatorioEntregaTC;
+    @FXML
+    private TableColumn tiempoEntregaTC;
+    @FXML
+    private TableColumn aleatorioEsperaTC;
+    @FXML
+    private TableColumn tiempoEsperaTC;
 
     private ObservableList<Inventario> inventarios;
 
-    private static DistribucionProbabilidad tablaDemanda;
-    private static DistribucionProbabilidad tablaEntregas;
-    private static DistribucionProbabilidad tablaEsperas;
+    // Datos para cada costo minimo segun cada valor de Q. Para el grafico de lineas
+    private ArrayList<XYChart.Data<Number, Number>> costoMinimoEnFuncionDeQ = new ArrayList<>();
 
-    private static int costoDeOrden, costoDeInventario, escasezConEspera, escasezSinEspera, inventarioInicial, diasSimulacion;
+    // Datos para los todos costos asociados al costo minimo. Para el primer grafico de torta
+    private ArrayList<PieChart.Data> costosDelCostoMinimo = new ArrayList<>();
+    // Datos para los costos de faltante con y sin espera asociados al costo de faltante minimo. Para el segundo grafico de torta
+    private ArrayList<PieChart.Data> costosDelFaltante = new ArrayList<>();
 
-    // Modificar la ruta segun cada quien
-    private final static String RUTA_ARCHIVO_DEFECTO = "Parametros.txt";
+    // Datos para los costos asociados a cada valor de Q. Para el grafico de barras
+    private ArrayList<XYChart.Data<String, Number>> costoInventarioPorCadaQ = new ArrayList<>();
+    private ArrayList<XYChart.Data<String, Number>> costoOrdenarPorCadaQ = new ArrayList<>();
+    private ArrayList<XYChart.Data<String, Number>> costoFaltantePorCadaQ = new ArrayList<>();
 
     private Simulacion simulacion;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         inventarioTV.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        //crearTablasDePrueba();
-        //leerParametrosDeArchivo(RUTA_ARCHIVO_DEFECTO);
 
         //Se inicializan los parametros con los valores que recibe ControladorParametrosManual del archivo
-        tablaDemanda = ControladorParametrosManual.tablaDemanda;
-        tablaEntregas = ControladorParametrosManual.tablaEntregas;
-        tablaEsperas = ControladorParametrosManual.tablaEsperas;
+        DistribucionProbabilidad tablaDemanda = ControladorParametrosManual.tablaDemanda;
+        DistribucionProbabilidad tablaEntregas = ControladorParametrosManual.tablaEntregas;
+        DistribucionProbabilidad tablaEsperas = ControladorParametrosManual.tablaEsperas;
 
-        costoDeOrden = ControladorParametrosManual.costoDeOrden;
-        costoDeInventario = ControladorParametrosManual.costoDeInventario;
-        escasezConEspera = ControladorParametrosManual.escasezConEspera;
-        escasezSinEspera = ControladorParametrosManual.escasezSinEspera;
-        inventarioInicial = ControladorParametrosManual.inventarioInicial;
-        diasSimulacion = ControladorParametrosManual.diasSimulacion;
+        int costoDeOrden = ControladorParametrosManual.costoDeOrden;
+        int costoDeInventario = ControladorParametrosManual.costoDeInventario;
+        int escasezConEspera = ControladorParametrosManual.escasezConEspera;
+        int escasezSinEspera = ControladorParametrosManual.escasezSinEspera;
+        int inventarioInicial = ControladorParametrosManual.inventarioInicial;
+        int diasSimulacion = ControladorParametrosManual.diasSimulacion;
 
         //Se calcula Q minimo y Q max
         int qmin = calcularQAsterisco(costoDeOrden, tablaDemanda.obtenerValorMinimo(), costoDeInventario, escasezSinEspera);
@@ -96,14 +132,8 @@ public class ControladorSimulacion implements Initializable {
 
         inicializarSpinners(qmin, qmax, rmin, rmax);
 
-        //inventarioTV.managedProperty().bind(inventarioTV.visibleProperty());
-        if(ControladorParametrosManual.tablaEventos)
-            inventarioTV.setManaged(true);
-        else
-            inventarioTV.setManaged(false);
-
-
-
+        // Muestra o no la tabla de eventos, segun lo que quiso el usuario
+        inventarioTV.setManaged(ControladorParametrosManual.tablaEventos);
 
         // Se crea la simulacion con los datos que no variaran: las tablas y estos costos con constantes
         simulacion = new Simulacion(tablaDemanda, tablaEntregas, tablaEsperas, diasSimulacion,
@@ -119,11 +149,19 @@ public class ControladorSimulacion implements Initializable {
                 valorRSpinner.getValueFactory().setValue(ractual);
                 simulacion.ejecutar(qactual, ractual);
             }
+            costoMinimoEnFuncionDeQ.add(new XYChart.Data<>(qactual, simulacion.getCostoTotalMinimo()));
+
+            costoInventarioPorCadaQ.add(new XYChart.Data<>(String.valueOf(qactual), simulacion.get_costoInventario()));
+            costoOrdenarPorCadaQ.add(new XYChart.Data<>(String.valueOf(qactual), simulacion.get_costoOrdenar()));
+            costoFaltantePorCadaQ.add(new XYChart.Data<>(String.valueOf(qactual), simulacion.get_costoFaltante()));
         }
 
-        //System.out.println("qmin = " + simulacion.getQmin());
-        //System.out.println("rmax = " + simulacion.getRmin());
+        costosDelCostoMinimo.add(new PieChart.Data("Costo faltante", simulacion.getCostoFaltanteMinimo()));
+        costosDelCostoMinimo.add(new PieChart.Data("Costo orden", simulacion.getCostoDeOrdenMinimo()));
+        costosDelCostoMinimo.add(new PieChart.Data("Costo inventario", simulacion.getCostoDeInventarioMinimo()));
 
+        costosDelFaltante.add(new PieChart.Data("Faltante con espera", simulacion.getCostoFaltanteConEspera()));
+        costosDelFaltante.add(new PieChart.Data("Faltante sin espera", simulacion.getCostoFaltanteSinEspera()));
     }
 
     private void inicializarListeners() {
@@ -207,97 +245,11 @@ public class ControladorSimulacion implements Initializable {
     }
 
     /**
-     * Lee los parametros de la simulacion del archivo especificado
-     *
-     * @param rutaArchivo nombre del archivo de donde leer los datos
-     */
-    private void leerParametrosDeArchivo(String rutaArchivo) {
-        try {
-            FileReader f = new FileReader(rutaArchivo);
-            BufferedReader br = new BufferedReader(f);
-
-            // Lee las tablas
-            String lineaDemanda = br.readLine();
-            String lineaProbDemanda = br.readLine();
-
-            String lineaTiempoEntrega = br.readLine();
-            String lineaProbTiempoEntrega = br.readLine();
-
-            String lineaTiempoEspera = br.readLine();
-            String lineaProbTiempoEspera = br.readLine();
-
-            Iterator<String> iterator = br.lines().iterator();
-            while (iterator.hasNext()) {
-                String lineaActual;
-
-                // Ignora lineas vacias
-                if ((lineaActual = iterator.next()).isEmpty())
-                    continue;
-
-                // Separa lo que esta antes y despues del igual. Antes esta el nombre del parametro, y despues su valor
-                String[] clavesValores = lineaActual.split("=");
-
-                if (clavesValores.length != 2) {
-                    System.out.println("Error al leer el archivo de parametros. Cada linea debe tener la " +
-                            "forma \'clave = valor\'");
-                    System.exit(1);
-                }
-
-                // Lee el valor y lo guarda en la variable correspondiente
-                switch (clavesValores[0]) {
-                    // h: costo de inventario
-                    case "h":
-                        costoDeInventario = Integer.parseInt(clavesValores[1]);
-                        break;
-                    // k: costo por pedido/orden
-                    case "k":
-                        costoDeOrden = Integer.parseInt(clavesValores[1]);
-                        break;
-                    // fce: costo de faltante con espera de cliente
-                    case "fce":
-                        escasezConEspera = Integer.parseInt(clavesValores[1]);
-                        break;
-                    // fse: costo de faltante sin espera de cliente
-                    case "fse":
-                        escasezSinEspera = Integer.parseInt(clavesValores[1]);
-                        break;
-                    // ii: inventario inicial
-                    case "ii":
-                        inventarioInicial = Integer.parseInt(clavesValores[1]);
-                        break;
-                    // dds: dias de simulacion
-                    case "dds":
-                        diasSimulacion = Integer.parseInt(clavesValores[1]);
-                }
-            }
-
-            String[] demanda = lineaDemanda.split("\\|");
-            String[] probDemanda = lineaProbDemanda.split("\\|");
-
-            String[] tiempoEntrega = lineaTiempoEntrega.split("\\|");
-            String[] probTiempoEntrega = lineaProbTiempoEntrega.split("\\|");
-
-            String[] tiempoEspera = lineaTiempoEspera.split("\\|");
-            String[] probTiempoEspera = lineaProbTiempoEspera.split("\\|");
-
-            tablaDemanda = crearTabla(demanda, probDemanda);
-            tablaEntregas = crearTabla(tiempoEntrega, probTiempoEntrega);
-            tablaEsperas = crearTabla(tiempoEspera, probTiempoEspera);
-
-            /* TODO: verificar que la frecuencia acumualada sea igual a uno. Puede ser con frecuenciaAcumulada()
-             * o frecuenciaAcumuladaEsUno() de la clase DistribucionProbabilidad */
-
-        } catch (IOException ex) {
-            System.out.println("Error leyendo archivo de parametros");
-        }
-    }
-
-    /**
      * Calcula q* (la cantidad optima por pedido, segun los costos y demanda dada)
-     *             ______________
-     *           /   2KD(h+s)
+     * ______________
+     * /   2KD(h+s)
      * q* = \  / ---------------
-     *      \/         hs
+     * \/         hs
      *
      * @param k costo por pedido
      * @param d demanda
@@ -308,31 +260,6 @@ public class ControladorSimulacion implements Initializable {
     private int calcularQAsterisco(int k, int d, int h, int s) {
         return (int) Math.sqrt((2 * k * d * (h + s)) / (h * s));
     }
-    
-    /**
-     * Crea y retorna una Tabla con los valores y probabilidades dados. Se encarga de parsear los valores y
-     * probabilidades, crear las listas y devolver la tabla creada.
-     *
-     * @param valores        los valores para la tabla
-     * @param probabilidades las probabilidades para la tabla
-     * @return la tabla creada con los valores y probabilidades
-     */
-    private DistribucionProbabilidad crearTabla(String[] valores, String[] probabilidades) {
-        ArrayList<Integer> valoresTabla = new ArrayList<>();
-        ArrayList<Float> probabilidadesTabla = new ArrayList<>();
-
-        for (String valor : valores) {
-            valoresTabla.add(Integer.parseInt(valor));
-        }
-
-        for (String probabilidad : probabilidades) {
-            probabilidadesTabla.add(Float.parseFloat(probabilidad));
-        }
-
-        // TODO: verificar que la suma de las probabilidades sea igual a 1, y retornar error si no es asi
-        return new DistribucionProbabilidad(valoresTabla, probabilidadesTabla);
-    }
-
 
     /**
      * Inserta una nueva fila en la tabla de eventos
@@ -357,71 +284,9 @@ public class ControladorSimulacion implements Initializable {
         System.out.println("\n");
     }
 
-
-    /**
-     * Crea las mismas tablas del ejemplo dado en la asignacion del proyecto
-     */
-    private void crearTablasDePrueba() {
-        ArrayList<Integer> valoresDemanda = new ArrayList<>();
-        valoresDemanda.add(25);
-        valoresDemanda.add(26);
-        valoresDemanda.add(27);
-        valoresDemanda.add(28);
-        valoresDemanda.add(29);
-        valoresDemanda.add(30);
-        valoresDemanda.add(31);
-        valoresDemanda.add(35);
-        valoresDemanda.add(33);
-        valoresDemanda.add(34);
-
-        ArrayList<Float> probabilidadesDemanda = new ArrayList<>();
-        probabilidadesDemanda.add(0.02F);
-        probabilidadesDemanda.add(0.04F);
-        probabilidadesDemanda.add(0.06F);
-        probabilidadesDemanda.add(0.12F);
-        probabilidadesDemanda.add(0.20F);
-        probabilidadesDemanda.add(0.24F);
-        probabilidadesDemanda.add(0.15F);
-        probabilidadesDemanda.add(0.10F);
-        probabilidadesDemanda.add(0.05F);
-        probabilidadesDemanda.add(0.02F);
-
-        // Se crea la tabla de demanda
-        tablaDemanda = new DistribucionProbabilidad(valoresDemanda, probabilidadesDemanda);
-
-        ArrayList<Integer> valoresEntrega = new ArrayList<>();
-        valoresEntrega.add(1);
-        valoresEntrega.add(2);
-        valoresEntrega.add(3);
-        valoresEntrega.add(4);
-
-        ArrayList<Float> probabilidadesEntrega = new ArrayList<>();
-        probabilidadesEntrega.add(0.2F);
-        probabilidadesEntrega.add(0.3F);
-        probabilidadesEntrega.add(0.25F);
-        probabilidadesEntrega.add(0.25F);
-
-        tablaEntregas = new DistribucionProbabilidad(valoresEntrega, probabilidadesEntrega);
-
-        ArrayList<Integer> valoresEspera = new ArrayList<>();
-        valoresEspera.add(0);
-        valoresEspera.add(1);
-        valoresEspera.add(2);
-        valoresEspera.add(3);
-        valoresEspera.add(4);
-
-        ArrayList<Float> probabilidadesEspera = new ArrayList<>();
-        probabilidadesEspera.add(0.4F);
-        probabilidadesEspera.add(0.2F);
-        probabilidadesEspera.add(0.15F);
-        probabilidadesEspera.add(0.15F);
-        probabilidadesEspera.add(0.1F);
-
-        tablaEsperas = new DistribucionProbabilidad(valoresEspera, probabilidadesEspera);
-    }
-
     /* Regresar al menu principal */
-    @FXML private void atras() {
+    @FXML
+    private void atras() {
         try {
             Parent mostrarMenu = FXMLLoader.load(getClass().getResource("ParametrosManual.fxml"));
             Scene scene = new Scene(mostrarMenu, Main.ANCHO_VENTANA, Main.ALTURA_VENTANA);
@@ -433,5 +298,176 @@ public class ControladorSimulacion implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void mostrarGraficos() {
+        Stage stage = new Stage();
+        stage.setScene(new Scene(crearParrilaDeGraficos(800, 600)));
+        stage.show();
+    }
+
+    private Pane crearParrilaDeGraficos(double width, double height) {
+        GridPane grid = new GridPane();
+        grid.setStyle("-fx-background-color: ivory;");
+
+        // Crea los graficos de torta
+
+        ObservableList<PieChart.Data> observableList = FXCollections.observableArrayList(costosDelCostoMinimo);
+        // Grafico cuanto representa cada costo en el costo minimo
+        final PieChart graficoTortaCostosTotales = new PieChart(observableList);
+        graficoTortaCostosTotales.setTitle("Costos relacionados al costo mínimo");
+
+        ObservableList<PieChart.Data> observableList1 = FXCollections.observableArrayList(costosDelFaltante);
+
+        // Grafico que representa que tanto del costo por faltante minimo ocupan el costo sin espera y sin espera
+        final PieChart graficoTortaCostosFaltante = new PieChart(observableList1);
+        graficoTortaCostosFaltante.setTitle("Costos con y sin espera de cliente");
+
+        // Grafico que representa, para cada valor de Q, los costos de inventario, ordenar y faltante
+        final BarChart<String, Number> graficoBarrasCostos = crearGraficoBarras();
+        graficoBarrasCostos.setTitle("Costos asociados a cada valor de Q");
+
+        // Agrega los graficos al grid
+        grid.addRow(0,
+                setChartGridPos(Pos.TOP_LEFT, crearGraficoLineas(costoMinimoEnFuncionDeQ
+                )),
+                setChartGridPos(Pos.TOP_RIGHT, graficoTortaCostosTotales)
+        );
+        grid.addRow(1,
+                setChartGridPos(Pos.BOTTOM_LEFT, graficoTortaCostosFaltante),
+                setChartGridPos(Pos.BOTTOM_RIGHT, graficoBarrasCostos)
+        );
+
+        grid.setMinHeight(Pane.USE_PREF_SIZE);
+        grid.setPrefSize(width, height);
+        grid.setMaxHeight(Pane.USE_PREF_SIZE);
+
+        for (final Node node : grid.getChildren()) {
+            final Chart chart = (Chart) node;
+            chart.setMinHeight(Pane.USE_PREF_SIZE);
+            chart.setPrefSize(width / 2, height / 2);
+            chart.setMaxHeight(Pane.USE_PREF_SIZE);
+        }
+
+        return grid;
+    }
+
+    private Chart setChartGridPos(final Pos pos, final Chart chart) {
+        final BooleanProperty enlarged = new SimpleBooleanProperty(false);
+
+        final TranslateTransition toCenter = new TranslateTransition(Duration.millis(250));
+        final ScaleTransition grow = new ScaleTransition(Duration.millis(250), chart);
+        grow.setFromX(1);
+        grow.setFromY(1);
+        grow.setToX(2);
+        grow.setToY(2);
+
+        final SequentialTransition explode = new SequentialTransition(chart, toCenter, grow);
+        explode.setOnFinished(t -> chart.getParent().setMouseTransparent(false));
+
+        final TranslateTransition fromCenter = new TranslateTransition(Duration.millis(250));
+        final ScaleTransition shrink = new ScaleTransition(Duration.millis(250), chart);
+        shrink.setFromX(2);
+        shrink.setFromY(2);
+        shrink.setToX(1);
+        shrink.setToY(1);
+
+        final SequentialTransition implode = new SequentialTransition(chart, shrink, fromCenter);
+        implode.setOnFinished(t -> chart.getParent().setMouseTransparent(false));
+
+        chart.setOnMouseClicked(t -> {
+            chart.getParent().setMouseTransparent(true);
+            chart.toFront();
+
+            if (!enlarged.get()) {
+                toCenter.setByX(
+                        chart.getWidth() / 2 *
+                                ((pos == Pos.TOP_RIGHT || pos == Pos.BOTTOM_RIGHT) ? -1 : 1)
+                );
+                toCenter.setByY(
+                        chart.getHeight() / 2 *
+                                ((pos == Pos.BOTTOM_LEFT || pos == Pos.BOTTOM_RIGHT) ? -1 : 1)
+                );
+                explode.play();
+            } else {
+                fromCenter.setByX(
+                        chart.getWidth() / 2 *
+                                ((pos == Pos.TOP_RIGHT || pos == Pos.BOTTOM_RIGHT) ? 1 : -1)
+                );
+                fromCenter.setByY(
+                        chart.getHeight() / 2 *
+                                ((pos == Pos.BOTTOM_LEFT || pos == Pos.BOTTOM_RIGHT) ? 1 : -1)
+                );
+                implode.play();
+            }
+
+            enlarged.set(!enlarged.get());
+        });
+
+        switch (pos) {
+            case TOP_LEFT:
+                chart.setStyle("-fx-background-color: lemonchiffon");
+                break;
+            case TOP_RIGHT:
+                chart.setStyle("-fx-background-color: aliceblue");
+                break;
+            case BOTTOM_LEFT:
+                chart.setStyle("-fx-background-color: aliceblue");
+                break;
+            case BOTTOM_RIGHT:
+                chart.setStyle("-fx-background-color: lemonchiffon");
+                break;
+        }
+
+        return chart;
+    }
+
+    private LineChart<Number, Number> crearGraficoLineas(ArrayList<XYChart.Data<Number, Number>> datos) {
+        final NumberAxis xAxis = new NumberAxis();
+        final NumberAxis yAxis = new NumberAxis();
+
+        xAxis.setLabel("Q");
+        yAxis.setLabel("Costo minimo");
+
+        final LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
+        lineChart.setTitle("Variacion del costo minimo segun Q");
+
+        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+
+        series.setName("Q");
+        series.getData().addAll(datos);
+        lineChart.getData().add(series);
+
+        return lineChart;
+    }
+
+    private BarChart<String, Number> crearGraficoBarras() {
+
+        final CategoryAxis xAxis = new CategoryAxis();
+        final NumberAxis yAxis = new NumberAxis();
+        BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
+
+        XYChart.Series<String, Number> serieCostoInventario = new XYChart.Series<>();
+        serieCostoInventario.setName("Costo de inventario");
+        for (XYChart.Data<String, Number> data : costoInventarioPorCadaQ) {
+            serieCostoInventario.getData().add(data);
+        }
+
+        XYChart.Series<String, Number> serieCostoOrdenar = new XYChart.Series<>();
+        serieCostoOrdenar.setName("Costo de ordenar");
+        for (XYChart.Data<String, Number> data : costoOrdenarPorCadaQ) {
+            serieCostoOrdenar.getData().add(data);
+        }
+
+        XYChart.Series<String, Number> serieCostoFaltante = new XYChart.Series<>();
+        serieCostoFaltante.setName("Costo por faltante");
+        for (XYChart.Data<String, Number> data : costoFaltantePorCadaQ) {
+            serieCostoFaltante.getData().add(data);
+        }
+
+        barChart.getData().addAll(serieCostoInventario, serieCostoOrdenar, serieCostoFaltante);
+
+        return barChart;
     }
 }

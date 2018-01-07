@@ -70,4 +70,30 @@ public class DistribucionProbabilidad {
         }
         return -1;
     }
+
+    /**
+     * Crea y retorna una Tabla con los valores y probabilidades dados. Se encarga de parsear los valores y
+     * probabilidades, crear las listas y devolver la tabla creada.
+     *
+     * @param valores        los valores para la tabla
+     * @param probabilidades las probabilidades para la tabla
+     * @return la tabla creada con los valores y probabilidades, o null si la suma de las probabilidades no es igual a 1
+     */
+    static DistribucionProbabilidad crearTabla(String[] valores, String[] probabilidades) {
+        ArrayList<Integer> valoresTabla = new ArrayList<>();
+        ArrayList<Float> probabilidadesTabla = new ArrayList<>();
+
+        for (String valor : valores) {
+            valoresTabla.add(Integer.parseInt(valor));
+        }
+
+        for (String probabilidad : probabilidades) {
+            probabilidadesTabla.add(Float.parseFloat(probabilidad));
+        }
+
+        DistribucionProbabilidad distribucionProbabilidad = new DistribucionProbabilidad(valoresTabla, probabilidadesTabla);
+
+        // Retorna la tabla si la suma de las probabilidades es 1, null sino
+        return (distribucionProbabilidad.frecuenciaAcumuladaEsUno() ? distribucionProbabilidad : null);
+    }
 }

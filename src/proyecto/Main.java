@@ -12,27 +12,19 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    /*@Override
-    public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("Interfaz.fxml"));
-        Scene scene = new Scene(root);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }*/
-
     final static int ANCHO_VENTANA = 600;
     final static int ALTURA_VENTANA = 400;
 
-    static Scene escena;
+    private static Scene escena;
     static Stage stage;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        /* Loading fonts */
+        //* Loading fonts *//*
         Font.loadFont(getClass().getResourceAsStream("Fonts/Roboto.ttf"), 16);
         Font.loadFont(getClass().getResourceAsStream("Fonts/Roboto-Black.ttf"), 16);
 
-        /* Init */
+        //* Init *//*
         Parent root = FXMLLoader.load(getClass().getResource("Menu.fxml"));
         escena = new Scene(root, ANCHO_VENTANA, ALTURA_VENTANA);
         escena.getStylesheets().add(Main.class.getResource("Estilos.css").toExternalForm());
@@ -41,6 +33,7 @@ public class Main extends Application {
         stage.setScene(escena);
         stage.setResizable(false);
         stage.show();
+
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
         stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
         stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);

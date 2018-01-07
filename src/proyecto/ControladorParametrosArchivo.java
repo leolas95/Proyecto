@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import javafx.stage.FileChooser;
 import javafx.stage.Screen;
@@ -14,60 +13,46 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import static proyecto.Main.stage;
 
 public class ControladorParametrosArchivo {
 
-    @FXML private ListView listView;
-
-    private Alert alerta;
-
     public static DistribucionProbabilidad tablaDemanda;
     public static DistribucionProbabilidad tablaEntregas;
     public static DistribucionProbabilidad tablaEsperas;
-
     public static int costoDeOrden, costoDeInventario, escasezConEspera, escasezSinEspera, inventarioInicial, diasSimulacion;
-
     public static boolean archivoCargado = false;
     public static int archivoErroneo = 0;
-
     public static FileChooser fileChooser;
     public static File selectedFile;
+    @FXML
+    private ListView<String> listView;
 
     //Para el boton "ACEPTAR" -> Va hacia el controladorParametrosManual con los datos del archivo
-    @FXML private void aceptar(){
-        try{
-            if(selectedFile==null){
-                alerta = new Alert(Alert.AlertType.ERROR);
-                alerta.setHeaderText("ERROR");
-                alerta.setContentText("Archivo no seleccionado!");
-                alerta.show();
+    @FXML
+    private void aceptar() {
+        try {
+            if (selectedFile == null) {
+                ControladorParametrosManual.alertaError("Archivo no seleccionado!");
                 return;
             }
 
-            if(archivoErroneo==1){
-                alerta = new Alert(Alert.AlertType.ERROR);
-                alerta.setHeaderText("ERROR");
-                alerta.setContentText("En la tabla de -distribucion de demanda- la suma de de la frecuencia no es igual a 1");
-                alerta.show();
-                return;
-            }
-            if(archivoErroneo==2){
-                alerta = new Alert(Alert.AlertType.ERROR);
-                alerta.setHeaderText("ERROR");
-                alerta.setContentText("En la tabla de -distribucion de tiempos de entrega- la suma de de la frecuencia no es igual a 1");
-                alerta.show();
-                return;
-            }
-            if(archivoErroneo==3){
-                alerta = new Alert(Alert.AlertType.ERROR);
-                alerta.setHeaderText("ERROR");
-                alerta.setContentText("En la tabla de -distribucion de tiempos de esperas- la suma de de la frecuencia no es igual a 1");
-                alerta.show();
-                return;
+            switch (archivoErroneo) {
+                case 1:
+                    ControladorParametrosManual.alertaError("En la tabla de -distribucion de demanda- la suma " +
+                            "de la frecuencia no es igual a 1");
+                    return;
+                case 2:
+                    ControladorParametrosManual.alertaError("En la tabla de -distribucion de tiempos de entrega- " +
+                            "la suma de la frecuencia no es igual a 1");
+                    return;
+                case 3:
+                    ControladorParametrosManual.alertaError("En la tabla de -distribucion de tiempos de esperas- " +
+                            "la suma de la frecuencia no es igual a 1");
+                    return;
+
             }
 
             archivoCargado = true;
@@ -80,7 +65,8 @@ public class ControladorParametrosArchivo {
     }
 
     // Para el boton "ATRAS" -> Regresar al menu principal
-    @FXML private void atras() {
+    @FXML
+    private void atras() {
         try {
             selectedFile = null;
             archivoCargado = false;
@@ -97,7 +83,8 @@ public class ControladorParametrosArchivo {
     }
 
     // Para el boton "INSTRUCCIONES" -> Ir a las instrucciones
-    @FXML private void instrucciones() {
+    @FXML
+    private void instrucciones() {
         try {
             Parent mostrarInstrucciones = FXMLLoader.load(getClass().getResource("Instrucciones.fxml"));
             Scene scene = new Scene(mostrarInstrucciones, Main.ANCHO_VENTANA, Main.ALTURA_VENTANA);
@@ -116,21 +103,20 @@ public class ControladorParametrosArchivo {
 
         fileChooser.getExtensionFilters().add(extFilter);
 
+        // Para que por defecto se vaya a la carpeta del proyecto
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+
         // Abrir
         selectedFile = fileChooser.showOpenDialog(null);
 
-        if(selectedFile==null){
+        if (selectedFile == null) {
             System.out.println("Archivo no seleccionado\n");
             return;
         }
 
         // Verificar que el archivo cumpla con los parámetros (si es que no esta vacio)
         if (selectedFile.length() == 0) {
-            alerta = new Alert(Alert.AlertType.ERROR);
-            alerta.setHeaderText("ERROR");
-            alerta.setContentText("Ups! este archivo no tiene ningún parámetro. Inténtelo de nuevo.\"");
-            alerta.show();
-            return;
+            ControladorParametrosManual.alertaError("Ups! este archivo no tiene ningún parámetro. Inténtelo de nuevo.");
         } else if (selectedFile != null) {
             listView.getItems().add(selectedFile.getName());
 
@@ -147,6 +133,7 @@ public class ControladorParametrosArchivo {
             String lineaTiempoEspera = br.readLine();
             String lineaProbTiempoEspera = br.readLine();
 
+            // Lee el resto de los parametros
             Iterator<String> iterator = br.lines().iterator();
             while (iterator.hasNext()) {
                 String lineaActual;
@@ -159,12 +146,9 @@ public class ControladorParametrosArchivo {
                 String[] clavesValores = lineaActual.split("=");
 
                 if (clavesValores.length != 2) {
-                    alerta = new Alert(Alert.AlertType.ERROR);
-                    alerta.setHeaderText("ERROR");
-                    alerta.setContentText("Error al leer el archivo de parametros. Cada linea debe tener la " +
+                    ControladorParametrosManual.alertaError("Error al leer el archivo de parametros. Cada linea debe tener la " +
                             "forma \"clave = valor\", si tiene duda con respecto al formato del archivo, consulte " +
                             "las instrucciones.");
-                    alerta.show();
                     return;
                 }
 
@@ -205,31 +189,29 @@ public class ControladorParametrosArchivo {
             String[] tiempoEspera = lineaTiempoEspera.split("\\|");
             String[] probTiempoEspera = lineaProbTiempoEspera.split("\\|");
 
-            tablaDemanda = crearTabla(demanda, probDemanda);
-            tablaEntregas = crearTabla(tiempoEntrega, probTiempoEntrega);
-            tablaEsperas = crearTabla(tiempoEspera, probTiempoEspera);
+            tablaDemanda = DistribucionProbabilidad.crearTabla(demanda, probDemanda);
 
-            if(!tablaDemanda.frecuenciaAcumuladaEsUno()){
-                alerta = new Alert(Alert.AlertType.ERROR);
-                alerta.setHeaderText("ERROR");
-                alerta.setContentText("En la tabla de -distribucion de demanda- la suma de de la frecuencia no es igual a 1");
-                alerta.show();
+            if (tablaDemanda == null) {
+                ControladorParametrosManual.alertaError("En la tabla de -distribucion de demanda- la suma " +
+                        "de de la frecuencia no es igual a 1");
                 archivoErroneo = 1;
                 return;
             }
-            if(!tablaEntregas.frecuenciaAcumuladaEsUno()){
-                alerta = new Alert(Alert.AlertType.ERROR);
-                alerta.setHeaderText("ERROR");
-                alerta.setContentText("En la tabla de -distribucion de tiempos de entrega- la suma de de la frecuencia no es igual a 1");
-                alerta.show();
+
+            tablaEntregas = DistribucionProbabilidad.crearTabla(tiempoEntrega, probTiempoEntrega);
+
+            if (tablaDemanda == null) {
+                ControladorParametrosManual.alertaError("En la tabla de -distribucion de tiempos de entrega- " +
+                        "la suma de de la frecuencia no es igual a 1");
                 archivoErroneo = 2;
                 return;
             }
-            if(!tablaEsperas.frecuenciaAcumuladaEsUno()){
-                alerta = new Alert(Alert.AlertType.ERROR);
-                alerta.setHeaderText("ERROR");
-                alerta.setContentText("En la tabla de -distribucion de tiempos de esperas- la suma de de la frecuencia no es igual a 1");
-                alerta.show();
+
+            tablaEsperas = DistribucionProbabilidad.crearTabla(tiempoEspera, probTiempoEspera);
+
+            if (tablaEsperas == null) {
+                ControladorParametrosManual.alertaError("En la tabla de -distribucion de tiempos de esperas- " +
+                        "la suma de de la frecuencia no es igual a 1");
                 archivoErroneo = 3;
                 return;
             }
@@ -238,30 +220,5 @@ public class ControladorParametrosArchivo {
 
             f.close();
         }
-
-    }
-
-    /**
-     * Crea y retorna una Tabla con los valores y probabilidades dados. Se encarga de parsear los valores y
-     * probabilidades, crear las listas y devolver la tabla creada.
-     *
-     * @param valores        los valores para la tabla
-     * @param probabilidades las probabilidades para la tabla
-     * @return la tabla creada con los valores y probabilidades
-     * */
-    private DistribucionProbabilidad crearTabla(String[] valores, String[] probabilidades) {
-        ArrayList<Integer> valoresTabla = new ArrayList<>();
-        ArrayList<Float> probabilidadesTabla = new ArrayList<>();
-
-        for (String valor : valores) {
-            valoresTabla.add(Integer.parseInt(valor));
-        }
-
-        for (String probabilidad : probabilidades) {
-            probabilidadesTabla.add(Float.parseFloat(probabilidad));
-        }
-
-        // TODO: verificar que la suma de las probabilidades sea igual a 1, y retornar error si no es asi
-        return new DistribucionProbabilidad(valoresTabla, probabilidadesTabla);
     }
 }
